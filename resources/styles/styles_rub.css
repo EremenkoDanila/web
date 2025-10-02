@@ -1,0 +1,227 @@
+/* Сброс стилей по умолчанию */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Основные стили для body */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #FFFFFF;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* Стили для хедера */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 40px;
+    background-color: #FFFFFF;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Логотип */
+header .logo {
+    font-size: 32px;
+    font-weight: bold;
+    color: green;
+}
+
+/* Стили для поисковой строки */
+.search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 50px;
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 15px 50px 15px 15px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    outline: none;
+}
+
+/* Стили для кнопки поиска */
+.mag_glass {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.mag_glass img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.mag_glass:hover {
+    opacity: 0.7;
+}
+
+/* Специфичные стили для поисковой строки в хедере */
+header .search-bar {
+    width: 900px;
+    height: 60px;
+    margin: 0 auto;
+}
+
+header .search-bar input {
+    padding: 15px 60px 15px 20px;
+}
+
+header .mag_glass {
+    width: 40px;
+    height: 40px;
+    right: 15px;
+}
+
+/* Стили для корзины */
+.cart {
+    position: relative;
+}
+
+.cart a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    position: relative;
+}
+
+.cart-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.cart-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #ff4444;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Основной контент */
+main {
+    width: 100%;
+    max-width: none;
+    padding: 0 20px;
+}
+
+h1 {
+    text-align: center;
+    margin: 40px 0;
+    padding-top: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Стили для заявок */
+.requests-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.request-card {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    display: flex;
+    gap: 20px;
+}
+
+.request-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 150px;
+}
+
+.request-icon {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+.request-title {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+}
+
+.request-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.request-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.request-table th,
+.request-table td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.request-table th {
+    font-weight: normal;
+    color: #888;
+    font-size: 14px;
+}
+
+.request-table td {
+    font-weight: 500;
+    color: #333;
+    font-size: 16px;
+}
+
+.request-table tr:last-child th,
+.request-table tr:last-child td {
+    border-bottom: none;
+}

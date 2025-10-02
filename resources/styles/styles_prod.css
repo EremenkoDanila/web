@@ -1,0 +1,211 @@
+/* Сброс стилей по умолчанию */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+main {
+    margin-top: 30px; /* ← отступ для всего main */
+}
+
+
+/* Основные стили для body */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #fff;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* Стили для хедера */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 40px;
+    background-color: #fff;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Логотип */
+header .logo {
+    font-size: 32px;
+    font-weight: bold;
+    color: green;
+}
+
+/* Стили для корзины */
+.cart {
+    position: relative;
+}
+
+.cart a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    position: relative;
+}
+
+.cart-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.cart-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #ff4444;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); */
+}
+
+/* Новый макет: изображение слева, контент справа */
+.product-layout {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 25px;
+    gap: 30px;
+}
+
+.image-section {
+    flex-shrink: 0;
+}
+
+.product-image {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+}
+
+.content-section {
+    flex: 1;
+}
+
+.product-title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+/* Информация о поддержке */
+.support-info {
+    margin-bottom: 0;
+}
+
+.support-row {
+    margin-bottom: 10px;
+}
+
+.label {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.value {
+    margin-left: 10px;
+}
+
+.version-list {
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+.version-item {
+    margin-bottom: 8px;
+}
+
+.version {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.size, .time {
+    color: #555;
+}
+
+/* Описание - убрана синяя полоса */
+.description {
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 4px;
+    /* Убрано свойство border-left */
+}
+
+.description p {
+    /* color: #555; */
+    line-height: 1.6;
+}
+
+/* Функции */
+.functions h2 {
+    font-size: 22px;
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.functions ol {
+    margin-left: 20px;
+}
+
+.functions li {
+    margin-bottom: 10px;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* Адаптивность */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        padding: 20px;
+    }
+    
+    .product-layout {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .product-title {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+    
+    .functions h2 {
+        font-size: 20px;
+    }
+}
+
+
+.functions-text {
+    white-space: pre-line;
+    line-height: 1.6;
+}

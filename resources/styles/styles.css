@@ -1,0 +1,203 @@
+/* Сброс стилей по умолчанию */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Основные стили для body */
+body {
+    font-family: 'Arial', sans-serif;
+    /* background-color: #f4f4f4; */
+    background-color: #FFFFFF;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* Стили для хедера */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 40px;
+    background-color: #FFFFFF;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Логотип */
+header .logo {
+    font-size: 32px;
+    font-weight: bold;
+    color: green;
+}
+
+/* Стили для поисковой строки */
+.search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 900px;
+    height: 60px;
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
+    margin: 0 auto;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 15px 60px 15px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    outline: none;
+}
+
+/* Стили для кнопки поиска */
+.mag_glass {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.mag_glass img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.mag_glass:hover {
+    opacity: 0.7;
+}
+
+/* Стили для корзины */
+.cart {
+    position: relative;
+}
+
+.cart a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    position: relative;
+}
+
+.cart-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.cart-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #ff4444;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Основной контент */
+main {
+    width: 100%;
+    max-width: none;
+    padding: 0 20px;
+}
+
+h1 {
+    text-align: center;
+    margin: 40px 0;
+    padding-top: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* ИЗМЕНЕНИЕ: 3 карточки в строке вместо 4 */
+.software-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Было repeat(4, 1fr) */
+    gap: 20px;
+    padding: 0 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    
+}
+
+.card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    position: relative; /* Добавляем для позиционирования иконки */
+    text-align: left; /* Выравнивание текста по левому краю */
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e0e0e0;
+    
+}
+
+/* Заголовок слева сверху */
+.card h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+/* Параграфы - каждый с новой строки */
+.card p {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+/* Иконка справа снизу */
+.card img {
+    width: 80px; /* Было 60px */
+    height: 80px; /* Было 60px */
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    object-fit: contain;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+
+
+
+
+
+
+
+
+
+

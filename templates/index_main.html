@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title href="/hello">IT Soft - Серверное ПО</title>
+    <link rel="stylesheet" href="/static/styles/styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='/hello'" style="cursor: pointer;">IT Soft</div>
+        <div class="search-bar">
+            <form action="/hello" method="GET">
+                <input type="text" name="query" placeholder="Быстрый поиск, например: Git" value="{{ .query }}">
+                <button class="mag_glass">
+                    <img src="http://127.0.0.1:9000/lb1/search.png" alt="Search">
+                </button>
+            </form>
+        </div>
+        <div class="cart">
+            <a href="#">
+                <img onclick="window.location.href='/cart'" src="http://127.0.0.1:9000/lb1/cart.png" alt="Cart" class="cart-icon">
+                <span class="cart-count">2</span>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <h1>Серверное ПО</h1>
+        
+        <div class="software-cards">
+            {{ range .orders }}
+            <div class="card">
+                <a href="/order/{{ .Order.ID }}" class="card-title-link" style="text-decoration: none; color: inherit;">
+                    <h2 style="text-decoration: none; color: inherit;">{{ .Order.Title }}</h2>
+                </a>
+                <img src="{{ .Order.IMG }}" alt="{{ .Order.Title }} logo">
+                <p>Версия: {{ .Latest.Number }}</p>
+                <p>{{ .Order.Description }}</p>
+            </div>
+            {{ else }}
+            <p>Нет доступных заказов</p>
+            {{ end }}
+        </div>
+    </main>
+</body>
+</html>

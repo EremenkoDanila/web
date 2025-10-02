@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Soft - Корзина</title>
+    <link rel="stylesheet" href="/static/styles/styles_rub.css">
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='/hello'" style="cursor: pointer;">IT Soft</div>
+        <div class="cart">
+            <a href="#">
+                <img src="http://127.0.0.1:9000/lb1/cart.png" alt="Cart" class="cart-icon">
+                <span class="cart-count">2</span>
+            </a>
+        </div>
+    </header>
+    
+    <main>
+        <h1>Корзина</h1>
+        
+        <div class="requests-container">
+            {{ range $currentItem := .cartItems }}
+            <div class="request-card">
+                <div class="request-left">
+                    <img src="{{ $currentItem.IMG }}" alt="{{ $currentItem.Title }}" class="request-icon">
+                    <div class="request-title">{{ $currentItem.Title }}</div>
+                </div>
+                <div class="request-right">
+                    <!-- Индивидуальный поиск для карточки -->
+                    <div class="search-bar">
+                        <form action="/cart" method="GET" class="search-form">
+                            <!-- Сохраняем поисковые запросы других карточек -->
+                            {{ range $otherItem := $.cartItems }}
+                                {{ if ne $otherItem.ID $currentItem.ID }}
+                                    {{ if $otherItem.SearchQuery }}
+                                    <input type="hidden" name="query_{{ $otherItem.ID }}" value="{{ $otherItem.SearchQuery }}">
+                                    {{ end }}
+                                {{ end }}
+                            {{ end }}
+                            
+                            <!-- Поле поиска для текущей карточки -->
+                            <input type="text" name="query_{{ $currentItem.ID }}" 
+                                   placeholder="Поиск версии..." 
+                                   value="{{ $currentItem.SearchQuery }}"
+                                   class="search-input">
+                            <button class="mag_glass" type="submit">
+                                <img src="http://127.0.0.1:9000/lb1/search.png" alt="Search">
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <table class="request-table">
+                        <tr>
+                            <th>Версия</th>
+                            <td class="{{ if not $currentItem.HasVersion }}not-found{{ end }}">
+                                {{ if $currentItem.HasVersion }}
+                                    {{ $currentItem.FoundVersion.Number }}
+                                {{ else }}
+                                    Версия не найдена
+                                {{ end }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Вес</th>
+                            <td>
+                                {{ if $currentItem.HasVersion }}
+                                    {{ $currentItem.FoundVersion.Size }}
+                                {{ else }}
+                                    N/A
+                                {{ end }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Время установки</th>
+                            <td>
+                                {{ if $currentItem.HasVersion }}
+                                    {{ $currentItem.FoundVersion.Time }}
+                                {{ else }}
+                                    N/A
+                                {{ end }}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            {{ else }}
+            <p>Корзина пуста</p>
+            {{ end }}
+        </div>
+    </main>
+</body>
+</html>
