@@ -13,7 +13,7 @@ type Repository struct {
 	orderRequests []OrderRequest
 }
 
-// Структуры корзины
+
 type CartData struct {
 	Phone  string
 	Orders []CartOrder
@@ -30,14 +30,14 @@ type OrderVersion struct {
 	VersionID int
 }
 
-// Новая структура для заказов
+
 type OrderRequest struct {
 	ID          int
 	PhoneNumber string
 	Services    []ServiceDetail
 }
 
-// Структура для деталей услуги в заказе
+
 type ServiceDetail struct {
 	ServiceID int
 	OS        string
