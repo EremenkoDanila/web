@@ -22,12 +22,12 @@ func StartServer() {
 
 	r := gin.Default()
 	
-	// Добавляем функцию lower в шаблоны с правильным типом
+	
 	r.SetFuncMap(template.FuncMap{
 		"lower": strings.ToLower,
 	})
 	
-	// добавляем наш html/шаблон
+	
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/static", "./resources")
 
