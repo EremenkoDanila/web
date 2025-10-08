@@ -14,13 +14,13 @@
     <main>
         <h1>Заявки</h1>
         
-        <!-- Поле для ввода номера телефона -->
+       
         <div class="phone-input-container">
             <input type="text" id="phoneNumber" placeholder="Введите телефон" class="phone-input dark-placeholder" value="{{ .Phone }}">
         </div>
         
         <div class="requests-container">
-            <!-- Заголовки для десктопной версии -->
+            
             <div class="card-headers">
                 <div class="card-header service-header">Услуга</div>
                 <div class="card-header os-header">ОС</div>
@@ -33,7 +33,7 @@
                 {{ range $currentItem := .cartItems }}
                 <div class="request-card">
                     <div class="card-content">
-                        <!-- Услуга -->
+                        
                         <div class="card-field service-field">
                             <div class="service-item">
                                 <img src="{{ $currentItem.IMG }}" alt="{{ $currentItem.Title }}" class="service-icon">
@@ -41,12 +41,12 @@
                             </div>
                         </div>
                         
-                        <!-- ОС -->
+                        
                         <div class="card-field os-field">
                             <div class="field-value">{{ $currentItem.OS }}</div>
                         </div>
                         
-                        <!-- Версия -->
+                        
                         <div class="card-field version-field">
                             <div class="search-bar">
                                 <form action="/cart" method="GET" class="search-form">
@@ -69,7 +69,7 @@
                             {{ end }}
                         </div>
                         
-                        <!-- Вес -->
+                        
                         <div class="card-field size-field">
                             <div class="field-value">
                                 {{ if $currentItem.HasVersion }}
@@ -80,7 +80,7 @@
                             </div>
                         </div>
                         
-                        <!-- Время установки -->
+                        
                         <div class="card-field time-field">
                             <div class="field-value">
                                 {{ if $currentItem.HasVersion }}
