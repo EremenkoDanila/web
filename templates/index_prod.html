@@ -8,13 +8,7 @@
 </head>
 <body>
     <header>
-        <div class="logo" onclick="window.location.href='/hello'" style="cursor: pointer;">IT Soft</div>
-        <div class="cart">
-            <a>
-                <img onclick="window.location.href='/cart'" src="http://127.0.0.1:9000/lb1/cart.png" alt="Cart" class="cart-icon" style="cursor: pointer;">
-                <span class="cart-count">2</span>
-            </a>
-        </div>
+        <div class="logo" onclick="window.location.href='/it_soft'" style="cursor: pointer;">IT Soft</div>
     </header>
 
     <main>
@@ -37,9 +31,8 @@
                         <div class="version-list">
                             {{range .versions}}
                             <div class="version-item">
-                                <span class="version">{{.Number}}</span>
-                                <span class="size">- {{.Size}}</span>
-                                <span class="time">- {{.Time}}</span>
+                                <span class="version">v {{.Number}}</span>
+                                <span class="size">- {{.Size}} Gb</span>
                             </div>
                             {{else}}
                             <p>Версии не найдены</p>
@@ -59,6 +52,14 @@
                     {{.order.Functions}}
                 </div>
             </section>
+        </div>
+
+        <!-- Корзина в левом нижнем углу -->
+        <div class="cart-bottom-left">
+            <a href="#">
+                <img onclick="window.location.href='/cart'" src="http://127.0.0.1:9000/lb1/cart.png" alt="Cart" class="cart-icon">
+                <span class="cart-count">{{ .CartCount }}</span>
+            </a>
         </div>
     </main>
 </body>

@@ -4,8 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"lab1/internal/app/repository"
+	"math/rand"
 	"net/http"
-	"strconv"
+	"time"
 )
 
 type Handler struct {
@@ -13,16 +14,25 @@ type Handler struct {
 }
 
 func NewHandler(r *repository.Repository) *Handler {
-	return &Handler{
-		Repository: r,
+	return &Handler{Repository: r}
+}
+
+// --- Расчёт времени установки ---
+func calculateInstallTime(size float32) int {
+	rand.Seed(time.Now().UnixNano())
+	speed := rand.Intn(10) + 1 // от 1 до 10 МБ/с
+	timeMinutes := int((float32(size*1000) / float32(speed)) / 60)
+	if timeMinutes < 1 {
+		timeMinutes = 1
 	}
+	return timeMinutes
 }
 
 func (h *Handler) GetOrders(ctx *gin.Context) {
 	var orders []repository.Order
 	var err error
 
-	searchQuery := ctx.Query("query")
+	searchQuery := ctx.Query("apps")
 	if searchQuery == "" {
 		orders, err = h.Repository.GetOrders()
 		if err != nil {
@@ -32,10 +42,9 @@ func (h *Handler) GetOrders(ctx *gin.Context) {
 		orders, err = h.Repository.GetOrdersByTitle(searchQuery)
 		if err != nil {
 			logrus.Error(err)
-		}
+			}
 	}
 
-	// Получаем версии для каждого заказа
 	type OrderWithVersions struct {
 		Order    repository.Order
 		Versions []repository.Version
@@ -47,7 +56,12 @@ func (h *Handler) GetOrders(ctx *gin.Context) {
 		versions, err := h.Repository.GetVersionsByOrderID(order.ID)
 		if err != nil {
 			logrus.Error(err)
-			versions = []repository.Version{}
+			continue
+		}
+
+		// пересчёт времени
+		for i := range versions {
+			_ = calculateInstallTime(versions[i].Size)
 		}
 		var latest repository.Version
 		if len(versions) > 0 {
@@ -60,33 +74,47 @@ func (h *Handler) GetOrders(ctx *gin.Context) {
 		})
 	}
 
+	cartCount := h.Repository.GetCartCount()
+
 	ctx.HTML(http.StatusOK, "index_main.html", gin.H{
-		"orders": ordersWithVersions,
-		"query":  searchQuery,
+		"orders":    ordersWithVersions,
+		"apps":      searchQuery,
+		"CartCount": cartCount,
 	})
 }
 
 func (h *Handler) GetOrder(ctx *gin.Context) {
-	idStr := ctx.Param("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		logrus.Error(err)
+	title := ctx.Param("title")
+	if title == "" {
+		logrus.Error("Название приложения не указано")
+		ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
+			"error": "Название приложения не указано",
+		})
+		return
 	}
 
-	order, err := h.Repository.GetOrder(id)
-	if err != nil {
-		logrus.Error(err)
+	orders, err := h.Repository.GetOrdersByTitle(title)
+	if err != nil || len(orders) == 0 {
+		logrus.Error("Приложение не найдено: ", title)
+		ctx.HTML(http.StatusNotFound, "error.html", gin.H{
+			"error": "Приложение не найдено",
+		})
+		return
 	}
+
+	order := orders[0]
 
 	versions, err := h.Repository.GetVersionsByOrderID(order.ID)
 	if err != nil {
 		logrus.Error(err)
-		versions = []repository.Version{}
 	}
 
+	cartCount := h.Repository.GetCartCount()
+
 	ctx.HTML(http.StatusOK, "index_prod.html", gin.H{
-		"order":    order,
-		"versions": versions,
+		"order":     order,
+		"versions":  versions,
+		"CartCount": cartCount,
 	})
 }
 
@@ -102,55 +130,64 @@ func (h *Handler) GetCartItems(ctx *gin.Context) {
 
 	type CartItemWithVersion struct {
 		repository.Order
-		FoundVersion repository.Version
-		HasVersion   bool
-		SearchQuery  string
+		FoundVersion  repository.Version
+		HasVersion    bool
+		SearchQuery   string
+		TimeMinutes   int
+		PresetVersion string 
 	}
 
 	var resultItems []CartItemWithVersion
 
-	// Собираем поисковые запросы для всех карточек
 	currentQueries := make(map[string]string)
 	for _, item := range cartOrders {
-		queryKey := "query_" + strconv.Itoa(item.ID)
+		queryKey := "apps_" + item.Title
 		currentQueries[queryKey] = ctx.Query(queryKey)
 	}
 
 	for _, item := range cartOrders {
-		queryKey := "query_" + strconv.Itoa(item.ID)
+		queryKey := "apps_" + item.Title
 		searchQuery := currentQueries[queryKey]
 
 		cartItem := CartItemWithVersion{
 			Order:       item,
 			SearchQuery: searchQuery,
+			PresetVersion: h.Repository.GetCartDataVersion(item.ID), 
 		}
 
-		// Ищем версию по запросу
 		foundVersion, err := h.Repository.FindVersionByNumber(item.ID, searchQuery)
 		if err == nil {
 			cartItem.FoundVersion = foundVersion
 			cartItem.HasVersion = true
-		} else if searchQuery == "" {
-			// Если запрос пустой - показываем последнюю версию
+			cartItem.TimeMinutes = calculateInstallTime(foundVersion.Size)
+		} else if searchQuery == "" && cartItem.PresetVersion != "" {
+			// если есть предзаполненная версия
 			versions, err := h.Repository.GetVersionsByOrderID(item.ID)
-			if err != nil {
-				logrus.Error(err)
+			if err == nil && len(versions) > 0 {
+				for _, v := range versions {
+					if v.Number == cartItem.PresetVersion {
+						cartItem.FoundVersion = v
+						cartItem.HasVersion = true
+						cartItem.TimeMinutes = calculateInstallTime(v.Size)
+						break
+					}
+				}
 			}
-			if len(versions) > 0 {
-				cartItem.FoundVersion = item.GetLatestVersion(versions)
-				cartItem.HasVersion = true
-			} else {
-				cartItem.HasVersion = false
-			}
-		} else {
-			// Если запрос не пустой, но версия не найдена
-			cartItem.HasVersion = false
 		}
 
 		resultItems = append(resultItems, cartItem)
 	}
 
+	cartCount := h.Repository.GetCartCount()
+
 	ctx.HTML(http.StatusOK, "index_rub.html", gin.H{
 		"cartItems": resultItems,
+		"CartCount": cartCount,
+		"Phone":     h.Repository.GetCartPhone(),
 	})
+}
+
+
+func (h *Handler) GetCartCount() int {
+	return h.Repository.GetCartCount()
 }

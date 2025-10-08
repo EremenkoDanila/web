@@ -1,11 +1,13 @@
 package api
 
 import (
+	"html/template"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"log"
 	"lab1/internal/app/handler"
 	"lab1/internal/app/repository"
+	"strings"
 )
 
 func StartServer() {
@@ -19,16 +21,20 @@ func StartServer() {
 	handler := handler.NewHandler(repo)
 
 	r := gin.Default()
+	
+	// Добавляем функцию lower в шаблоны с правильным типом
+	r.SetFuncMap(template.FuncMap{
+		"lower": strings.ToLower,
+	})
+	
 	// добавляем наш html/шаблон
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/static", "./resources")
-	// слева название папки, в которую выгрузится наша статика
-	// справа путь к папке, в которой лежит статика
 
-	r.GET("/hello", handler.GetOrders)
-	r.GET("/order/:id", handler.GetOrder)
+	r.GET("/it_soft", handler.GetOrders)
+	r.GET("/apps/:title", handler.GetOrder)
 	r.GET("/cart", handler.GetCartItems)
 
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.Run()
 	log.Println("Server down")
 }

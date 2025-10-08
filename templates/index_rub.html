@@ -3,91 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IT Soft - Корзина</title>
+    <title>IT Soft - Заявки</title>
     <link rel="stylesheet" href="/static/styles/styles_rub.css">
 </head>
 <body>
     <header>
-        <div class="logo" onclick="window.location.href='/hello'" style="cursor: pointer;">IT Soft</div>
-        <div class="cart">
-            <a href="#">
-                <img src="http://127.0.0.1:9000/lb1/cart.png" alt="Cart" class="cart-icon">
-                <span class="cart-count">2</span>
-            </a>
-        </div>
+        <div class="logo" onclick="window.location.href='/it_soft'" style="cursor: pointer;">IT Soft</div>
     </header>
     
     <main>
-        <h1>Корзина</h1>
+        <h1>Заявки</h1>
+        
+        <!-- Поле для ввода номера телефона -->
+        <div class="phone-input-container">
+            <input type="text" id="phoneNumber" placeholder="Введите телефон" class="phone-input dark-placeholder" value="{{ .Phone }}">
+        </div>
         
         <div class="requests-container">
-            {{ range $currentItem := .cartItems }}
-            <div class="request-card">
-                <div class="request-left">
-                    <img src="{{ $currentItem.IMG }}" alt="{{ $currentItem.Title }}" class="request-icon">
-                    <div class="request-title">{{ $currentItem.Title }}</div>
-                </div>
-                <div class="request-right">
-                    <!-- Индивидуальный поиск для карточки -->
-                    <div class="search-bar">
-                        <form action="/cart" method="GET" class="search-form">
-                            <!-- Сохраняем поисковые запросы других карточек -->
-                            {{ range $otherItem := $.cartItems }}
-                                {{ if ne $otherItem.ID $currentItem.ID }}
-                                    {{ if $otherItem.SearchQuery }}
-                                    <input type="hidden" name="query_{{ $otherItem.ID }}" value="{{ $otherItem.SearchQuery }}">
-                                    {{ end }}
-                                {{ end }}
-                            {{ end }}
-                            
-                            <!-- Поле поиска для текущей карточки -->
-                            <input type="text" name="query_{{ $currentItem.ID }}" 
-                                   placeholder="Поиск версии..." 
-                                   value="{{ $currentItem.SearchQuery }}"
-                                   class="search-input">
-                            <button class="mag_glass" type="submit">
-                                <img src="http://127.0.0.1:9000/lb1/search.png" alt="Search">
-                            </button>
-                        </form>
-                    </div>
-                    
-                    <table class="request-table">
-                        <tr>
-                            <th>Версия</th>
-                            <td class="{{ if not $currentItem.HasVersion }}not-found{{ end }}">
-                                {{ if $currentItem.HasVersion }}
-                                    {{ $currentItem.FoundVersion.Number }}
-                                {{ else }}
-                                    Версия не найдена
-                                {{ end }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Вес</th>
-                            <td>
-                                {{ if $currentItem.HasVersion }}
-                                    {{ $currentItem.FoundVersion.Size }}
-                                {{ else }}
-                                    N/A
-                                {{ end }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Время установки</th>
-                            <td>
-                                {{ if $currentItem.HasVersion }}
-                                    {{ $currentItem.FoundVersion.Time }}
-                                {{ else }}
-                                    N/A
-                                {{ end }}
-                            </td>
-                        </tr>
-                    </table>
-                </div>
+            <!-- Заголовки для десктопной версии -->
+            <div class="card-headers">
+                <div class="card-header service-header">Услуга</div>
+                <div class="card-header os-header">ОС</div>
+                <div class="card-header version-header">Версия</div>
+                <div class="card-header size-header">Вес</div>
+                <div class="card-header time-header">Время установки</div>
             </div>
-            {{ else }}
-            <p>Корзина пуста</p>
-            {{ end }}
+            
+            <div class="cards-container">
+                {{ range $currentItem := .cartItems }}
+                <div class="request-card">
+                    <div class="card-content">
+                        <!-- Услуга -->
+                        <div class="card-field service-field">
+                            <div class="service-item">
+                                <img src="{{ $currentItem.IMG }}" alt="{{ $currentItem.Title }}" class="service-icon">
+                                <a href="/apps/{{ $currentItem.Title }}" class="service-name" style="text-decoration: none; color: inherit;">{{ $currentItem.Title }}</a>
+                            </div>
+                        </div>
+                        
+                        <!-- ОС -->
+                        <div class="card-field os-field">
+                            <div class="field-value">{{ $currentItem.OS }}</div>
+                        </div>
+                        
+                        <!-- Версия -->
+                        <div class="card-field version-field">
+                            <div class="search-bar">
+                                <form action="/cart" method="GET" class="search-form">
+                                    {{ range $otherItem := $.cartItems }}
+                                        {{ if ne $otherItem.ID $currentItem.ID }}
+                                            {{ if $otherItem.SearchQuery }}
+                                            <input type="hidden" name="apps_{{ $otherItem.Title }}" value="{{ $otherItem.SearchQuery }}">
+                                            {{ end }}
+                                        {{ end }}
+                                    {{ end }}
+                                    
+                                    <input type="text" name="apps_{{ $currentItem.Title }}" 
+                                        placeholder="{{ if $currentItem.HasVersion }}{{ $currentItem.FoundVersion.Number }}{{ else }}Введите версию{{ end }}" 
+                                        value="{{ if $currentItem.SearchQuery }}{{ $currentItem.SearchQuery }}{{ else if $currentItem.PresetVersion }}{{ $currentItem.PresetVersion }}{{ else if $currentItem.HasVersion }}{{ $currentItem.FoundVersion.Number }}{{ else }}{{ end }}"
+                                        class="search-input dark-placeholder">
+                                </form>
+                            </div>
+                            {{ if not $currentItem.HasVersion }}
+                            <div class="version-not-found">Версия не найдена</div>
+                            {{ end }}
+                        </div>
+                        
+                        <!-- Вес -->
+                        <div class="card-field size-field">
+                            <div class="field-value">
+                                {{ if $currentItem.HasVersion }}
+                                    {{ $currentItem.FoundVersion.Size }} Gb
+                                {{ else }}
+                                    N/A
+                                {{ end }}
+                            </div>
+                        </div>
+                        
+                        <!-- Время установки -->
+                        <div class="card-field time-field">
+                            <div class="field-value">
+                                {{ if $currentItem.HasVersion }}
+                                    {{ $currentItem.TimeMinutes }} минут
+                                {{ else }}
+                                    N/A
+                                {{ end }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{ else }}
+                <div class="request-card empty-card">
+                    <div class="empty-cart">Корзина пуста</div>
+                </div>
+                {{ end }}
+            </div>
         </div>
     </main>
 </body>

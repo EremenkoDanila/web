@@ -5,14 +5,11 @@
     box-sizing: border-box;
 }
 
-/* Основные стили для body */
 body {
     font-family: 'Arial', sans-serif;
     background-color: #FFFFFF;
     color: #333;
-    margin: 0;
-    padding: 0;
-    width: 100%;
+    line-height: 1.6;
 }
 
 /* Стили для хедера */
@@ -20,208 +17,355 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 30px 40px;
+    padding: 23px 40px;
     background-color: #FFFFFF;
     width: 100vw;
     margin-left: calc(-50vw + 50%);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Логотип */
 header .logo {
     font-size: 32px;
     font-weight: bold;
     color: green;
-}
-
-/* Стили для поисковой строки */
-.search-bar {
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    height: 50px;
-    background: #FFFFFF;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 12px;
-    margin-bottom: 15px;
-}
-
-.search-bar input {
-    width: 100%;
-    padding: 15px 50px 15px 15px;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    outline: none;
-}
-
-/* Стили для кнопки поиска */
-.mag_glass {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 30px;
-    height: 30px;
-    background: none;
-    border: none;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
+    transition: color 0.3s ease;
 }
 
-.mag_glass img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-.mag_glass:hover {
-    opacity: 0.7;
-}
-
-/* Специфичные стили для поисковой строки в хедере */
-header .search-bar {
-    width: 900px;
-    height: 60px;
-    margin: 0 auto;
-}
-
-header .search-bar input {
-    padding: 15px 60px 15px 20px;
-}
-
-header .mag_glass {
-    width: 40px;
-    height: 40px;
-    right: 15px;
-}
-
-/* Стили для корзины */
-.cart {
-    position: relative;
-}
-
-.cart a {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    position: relative;
-}
-
-.cart-icon {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-}
-
-.cart-count {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background-color: #ff4444;
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: bold;
+header .logo:hover {
+    color: darkgreen;
 }
 
 /* Основной контент */
 main {
-    width: 100%;
-    max-width: none;
     padding: 0 20px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 h1 {
     text-align: center;
     margin: 40px 0;
     padding-top: 20px;
-    font-size: 24px;
+    font-size: 32px;
     font-weight: bold;
+    color: #333;
 }
 
-/* Стили для заявок */
+/* Стили для поля ввода телефона */
+.phone-input-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0 40px 0;
+}
+
+.phone-input {
+    width: 300px;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    text-align: center;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.phone-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Стили для контейнера заявок */
 .requests-container {
+    padding: 0 20px;
+    max-width: 80%; /* Изменено с 1400px на 80% */
+    margin: 0 auto 40px;
+}
+
+/* Заголовки для десктопной версии */
+.card-headers {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.5fr 1fr 1.5fr;
+    gap: 10px;
+    padding: 25px 20px;
+    background-color: #f8f9fa;
+    border-radius: 12px 12px 0 0;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #333;
+    font-size: 18px;
+    text-align: center;
+    border-bottom: 2px solid #e9ecef;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Контейнер для карточек */
+.cards-container {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    padding: 0 20px;
-    max-width: 800px;
-    margin: 0 auto;
 }
 
+/* Карточка заявки */
 .request-card {
     background-color: #fff;
-    padding: 25px;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e0e0e0;
-    display: flex;
-    gap: 20px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #f0f0f0;
 }
 
-.request-left {
+.request-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.card-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.5fr 1fr 1.5fr;
+    gap: 10px;
+    align-items: center;
+}
+
+.card-field {
+    padding: 10px;
+    text-align: center;
+}
+
+/* Стили для ячеек с услугами */
+.service-field {
+    display: flex;
+    justify-content: center;
+}
+
+.service-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 150px;
+    gap: 10px;
 }
 
-.request-icon {
+.service-icon {
     width: 80px;
     height: 80px;
     object-fit: contain;
-    margin-bottom: 15px;
 }
 
-.request-title {
-    font-size: 18px;
-    font-weight: bold;
+.service-name {
+    font-weight: 600;
+    color: #007bff;
+    font-size: 25px;
+    text-decoration: none;
+    transition: color 0.2s ease;
     text-align: center;
-    color: #333;
 }
 
-.request-right {
-    flex: 1;
+.service-name:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Стили для поисковой строки */
+.search-bar {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    width: 50%;
+    margin: 0 auto;
 }
 
-.request-table {
+.search-form {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
 }
 
-.request-table th,
-.request-table td {
+.search-input {
+    width: 100%;
     padding: 8px 12px;
-    text-align: left;
-    border-bottom: 1px solid #f0f0f0;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    font-size: 18px;
+    outline: none;
+    text-align: center;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.request-table th {
-    font-weight: normal;
-    color: #888;
-    font-size: 14px;
+.search-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
-.request-table td {
+/* Сообщение о ненайденной версии */
+.version-not-found {
+    color: #ff4444;
+    font-style: italic;
+    font-size: 18px;
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+/* Общие стили для полей */
+.field-value {
     font-weight: 500;
     color: #333;
-    font-size: 16px;
+    font-size: 20px;
 }
 
-.request-table tr:last-child th,
-.request-table tr:last-child td {
-    border-bottom: none;
+.empty-cart {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 60px;
+    font-size: 20px;
+    grid-column: 1 / -1;
+}
+
+/* Стили для темных плейсхолдеров */
+.phone-input.dark-placeholder::placeholder,
+.search-input.dark-placeholder::placeholder {
+    color: #666;
+    opacity: 1;
+    font-weight: 500;
+}
+
+.phone-input,
+.search-input {
+    color: #000000;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    transition: all 0.2s ease;
+}
+
+.phone-input:focus,
+.search-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.phone-input.dark-placeholder::placeholder,
+.search-input.dark-placeholder::placeholder {
+    color: #444;
+    opacity: 0.9;
+}
+
+.phone-input:not(:focus):not(:placeholder-shown),
+.search-input:not(:focus):not(:placeholder-shown) {
+    border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    header {
+        padding: 20px;
+    }
+    
+    header .logo {
+        font-size: 28px;
+    }
+    
+    h1 {
+        font-size: 26px;
+        margin: 30px 0;
+    }
+    
+    .card-headers {
+        display: none;
+    }
+    
+    .card-content {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .card-field {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 5px;
+    }
+    
+    .service-item {
+        flex-direction: row;
+        justify-content: flex-start;
+        width: 100%;
+        gap: 15px;
+    }
+    
+    .service-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .service-name {
+        font-size: 20px;
+    }
+    
+    .field-value {
+        font-size: 18px;
+    }
+    
+    .search-input {
+        font-size: 16px;
+        padding: 10px;
+    }
+    
+    .version-not-found {
+        font-size: 16px;
+    }
+    
+    .request-card {
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        padding: 15px;
+    }
+    
+    .phone-input-container {
+        margin: 15px 0 30px 0;
+    }
+    
+    .requests-container {
+        padding: 0 10px;
+        max-width: 95%; /* На мобильных увеличиваем ширину */
+    }
+}
+
+/* Дополнительные улучшения для очень маленьких экранов */
+@media (max-width: 480px) {
+    header {
+        padding: 15px;
+    }
+    
+    header .logo {
+        font-size: 24px;
+    }
+    
+    h1 {
+        font-size: 22px;
+        margin: 20px 0;
+    }
+    
+    .service-item {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .service-name {
+        font-size: 18px;
+    }
+    
+    .field-value {
+        font-size: 16px;
+    }
+    
+    .request-card {
+        padding: 12px;
+    }
+    
+    .cards-container {
+        gap: 15px;
+    }
+    
+    .requests-container {
+        max-width: 100%; /* На очень маленьких экранах используем всю ширину */
+    }
 }

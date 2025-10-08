@@ -6,15 +6,42 @@ import (
 )
 
 type Repository struct {
-	orders       []Order
-	versions     []Version
-	orderVersion []OrderVersion
-	cartIDs      []int
+	orders        []Order
+	versions      []Version
+	orderVersion  []OrderVersion
+	cartData      []CartData
+	orderRequests []OrderRequest
+}
+
+// Структуры корзины
+type CartData struct {
+	Phone  string
+	Orders []CartOrder
+}
+
+type CartOrder struct {
+	ID      int
+	OS      string
+	Version string
 }
 
 type OrderVersion struct {
 	OrderID   int
 	VersionID int
+}
+
+// Новая структура для заказов
+type OrderRequest struct {
+	ID          int
+	PhoneNumber string
+	Services    []ServiceDetail
+}
+
+// Структура для деталей услуги в заказе
+type ServiceDetail struct {
+	ServiceID int
+	OS        string
+	Version   string
 }
 
 func NewRepository() (*Repository, error) {
@@ -51,7 +78,7 @@ func NewRepository() (*Repository, error) {
 			ID:              3,
 			Title:           "DBeaver",
 			Description:     "DBeaver - инструмент для работы с БД",
-			FullDescription: "DBeaver - многоплатформенный инструмент с открытым исходным кодом для работы с базами данных спользуемый разработчиками, администраторами баз данных и аналитиками для управления, проектирования и взаимодействия с СУБД",
+			FullDescription: "DBeaver - многоплатформенный инструмент с открытым исходным кодом для работы с базами данных, используемый разработчиками, администраторами баз данных и аналитиками для управления и проектирования СУБД",
 			IMG:             "http://127.0.0.1:9000/lb1/dbeaver.png",
 			OS:              "Linux",
 			Functions: `1. Подключение к различным СУБД
@@ -78,17 +105,17 @@ func NewRepository() (*Repository, error) {
 	}
 
 	versions := []Version{
-		{ID: 1, Number: "1.2", Size: "1Gb", Time: "10 минут"},
-		{ID: 2, Number: "1.3", Size: "1.5Gb", Time: "15 минут"},
-		{ID: 3, Number: "13.0", Size: "2Gb", Time: "20 минут"},
-		{ID: 4, Number: "14.0", Size: "2.2Gb", Time: "25 минут"},
-		{ID: 5, Number: "1.0", Size: "500Mb", Time: "5 минут"},
-		{ID: 6, Number: "1.1", Size: "550Mb", Time: "6 минут"},
-		{ID: 7, Number: "11.0", Size: "1.2Gb", Time: "12 минут"},
-		{ID: 8, Number: "12.0", Size: "1.3Gb", Time: "13 минут"},
+		{ID: 1, Number: "1.2", Size: 1},
+		{ID: 2, Number: "1.3", Size: 1.5},
+		{ID: 3, Number: "13.0", Size: 20},
+		{ID: 4, Number: "14.0", Size: 20.2},
+		{ID: 5, Number: "1.0", Size: 10},
+		{ID: 6, Number: "1.1", Size: 10},
+		{ID: 7, Number: "11.0", Size: 12},
+		{ID: 8, Number: "12.0", Size: 13},
 	}
 
-	orderVersion := []OrderVersion{
+orderVersion := []OrderVersion{
 		{OrderID: 1, VersionID: 1},
 		{OrderID: 1, VersionID: 2},
 		{OrderID: 2, VersionID: 3},
@@ -99,21 +126,31 @@ func NewRepository() (*Repository, error) {
 		{OrderID: 4, VersionID: 8},
 	}
 
-	cartIDs := []int{1, 2}
+	cartData := []CartData{
+		{
+			Phone: "8-800-555-35-35",
+			Orders: []CartOrder{
+				{ID: 1, OS: "Linux", Version: "1.3"},
+				{ID: 2, OS: "Lunyx", Version: "14.0"},
+			},
+		},
+	}
+
+	orderRequests := []OrderRequest{}
 
 	return &Repository{
-		orders:       orders,
-		versions:     versions,
-		orderVersion: orderVersion,
-		cartIDs:      cartIDs,
+		orders:        orders,
+		versions:      versions,
+		orderVersion:  orderVersion,
+		cartData:      cartData,
+		orderRequests: orderRequests,
 	}, nil
 }
 
 type Version struct {
 	ID     int
 	Number string
-	Size   string
-	Time   string
+	Size   float32
 }
 
 type Order struct {
@@ -163,13 +200,36 @@ func (r *Repository) GetOrders() ([]Order, error) {
 
 func (r *Repository) GetCartOrders() ([]Order, error) {
 	var result []Order
-	for _, id := range r.cartIDs {
-		order, err := r.GetOrder(id)
+	if len(r.cartData) == 0 {
+		return result, nil
+	}
+
+	for _, orderInfo := range r.cartData[0].Orders {
+		order, err := r.GetOrder(orderInfo.ID)
 		if err == nil {
 			result = append(result, order)
 		}
 	}
 	return result, nil
+}
+
+func (r *Repository) GetCartPhone() string {
+	if len(r.cartData) == 0 {
+		return ""
+	}
+	return r.cartData[0].Phone
+}
+
+func (r *Repository) GetCartDataVersion(orderID int) string {
+	if len(r.cartData) == 0 {
+		return ""
+	}
+	for _, order := range r.cartData[0].Orders {
+		if order.ID == orderID {
+			return order.Version
+		}
+	}
+	return ""
 }
 
 func (r *Repository) GetOrder(id int) (Order, error) {
@@ -209,4 +269,11 @@ func (r *Repository) FindVersionByNumber(orderID int, versionQuery string) (Vers
 
 func (r *Repository) GetVersionsByOrderID(orderID int) ([]Version, error) {
 	return r.getVersionsByOrderID(orderID), nil
+}
+
+func (r *Repository) GetCartCount() int {
+	if len(r.cartData) == 0 {
+		return 0
+	}
+	return len(r.cartData[0].Orders)
 }

@@ -8,12 +8,13 @@
 /* Основные стили для body */
 body {
     font-family: 'Arial', sans-serif;
-    /* background-color: #f4f4f4; */
     background-color: #FFFFFF;
     color: #333;
     margin: 0;
     padding: 0;
     width: 100%;
+    position: relative;
+    min-height: 100vh;
 }
 
 /* Стили для хедера */
@@ -35,36 +36,44 @@ header .logo {
     color: green;
 }
 
+/* Контейнер для поисковой строки по центру */
+.search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+    width: 100%;
+}
+
 /* Стили для поисковой строки */
 .search-bar {
     position: relative;
     display: flex;
     align-items: center;
     width: 900px;
-    height: 60px;
+    height: 40px;
     background: #FFFFFF;
     border: 1px solid rgba(0, 0, 0, 0.5);
     border-radius: 12px;
-    margin: 0 auto;
 }
 
 .search-bar input {
     width: 100%;
-    padding: 15px 60px 15px 20px;
+    padding: 10px 50px 10px 15px;
     border: none;
     border-radius: 12px;
-    font-size: 16px;
+    font-size: 14px;
     outline: none;
 }
 
 /* Стили для кнопки поиска */
 .mag_glass {
     position: absolute;
-    right: 15px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     background: none;
     border: none;
     cursor: pointer;
@@ -84,12 +93,15 @@ header .logo {
     opacity: 0.7;
 }
 
-/* Стили для корзины */
-.cart {
-    position: relative;
+/* Корзина в левом нижнем углу */
+.cart-bottom-left {
+    position: fixed;
+    left: 30px;
+    bottom: 30px;
+    z-index: 1000;
 }
 
-.cart a {
+.cart-bottom-left a {
     display: flex;
     align-items: center;
     text-decoration: none;
@@ -97,9 +109,14 @@ header .logo {
 }
 
 .cart-icon {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.cart-icon:hover {
+    transform: scale(1.1);
 }
 
 .cart-count {
@@ -123,6 +140,8 @@ main {
     width: 100%;
     max-width: none;
     padding: 0 20px;
+    position: relative;
+    padding-bottom: 100px; /* Отступ для корзины */
 }
 
 h1 {
@@ -133,15 +152,14 @@ h1 {
     font-weight: bold;
 }
 
-/* ИЗМЕНЕНИЕ: 3 карточки в строке вместо 4 */
+/* 3 карточки в строке */
 .software-cards {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Было repeat(4, 1fr) */
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     padding: 0 20px;
     max-width: 1200px;
     margin: 0 auto;
-    
 }
 
 .card {
@@ -153,12 +171,11 @@ h1 {
     height: 200px;
     display: flex;
     flex-direction: column;
-    position: relative; /* Добавляем для позиционирования иконки */
-    text-align: left; /* Выравнивание текста по левому краю */
+    position: relative;
+    text-align: left;
     background: #fff;
     border-radius: 16px;
     border: 1px solid #e0e0e0;
-    
 }
 
 /* Заголовок слева сверху */
@@ -179,8 +196,8 @@ h1 {
 
 /* Иконка справа снизу */
 .card img {
-    width: 80px; /* Было 60px */
-    height: 80px; /* Было 60px */
+    width: 80px;
+    height: 80px;
     position: absolute;
     bottom: 20px;
     right: 20px;
@@ -191,13 +208,35 @@ h1 {
     transform: translateY(-5px);
 }
 
+/* Адаптивность для мобильных устройств */
+@media (max-width: 1024px) {
+    .software-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .search-bar {
+        width: 90%;
+    }
+}
 
 
 
-
-
-
-
-
-
-
+@media (max-width: 768px) {
+    .software-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    header {
+        padding: 20px;
+    }
+    
+    .cart-bottom-left {
+        left: 20px;
+        bottom: 20px;
+    }
+    
+    .cart-icon {
+        width: 40px;
+        height: 40px;
+    }
+}

@@ -5,23 +5,17 @@
     box-sizing: border-box;
 }
 
-
-main {
-    margin-top: 30px; /* ← отступ для всего main */
-}
-
-
-/* Основные стили для body */
+/* Основные стили */
 body {
     font-family: 'Arial', sans-serif;
     background-color: #fff;
     color: #333;
-    margin: 0;
-    padding: 0;
     width: 100%;
+    min-height: 100vh;
+    position: relative;
 }
 
-/* Стили для хедера */
+/* Хедер */
 header {
     display: flex;
     justify-content: space-between;
@@ -38,57 +32,30 @@ header .logo {
     font-size: 32px;
     font-weight: bold;
     color: green;
+    cursor: pointer;
 }
 
-/* Стили для корзины */
-.cart {
-    position: relative;
+/* Основной контейнер */
+main {
+    margin-top: 30px;
+    padding-bottom: 100px; /* отступ для корзины */
 }
 
-.cart a {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    position: relative;
-}
-
-.cart-icon {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-}
-
-.cart-count {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background-color: #ff4444;
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: bold;
-}
-
+/* Контейнер содержимого */
 .container {
     max-width: 800px;
     margin: 0 auto;
     background-color: #fff;
     padding: 30px;
     border-radius: 8px;
-    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); */
 }
 
-/* Новый макет: изображение слева, контент справа */
+/* Макет: изображение + текст */
 .product-layout {
     display: flex;
     align-items: flex-start;
-    margin-bottom: 25px;
     gap: 30px;
+    margin-bottom: 25px;
 }
 
 .image-section {
@@ -105,6 +72,7 @@ header .logo {
     flex: 1;
 }
 
+/* Заголовок */
 .product-title {
     font-size: 32px;
     font-weight: bold;
@@ -112,7 +80,7 @@ header .logo {
     margin-bottom: 20px;
 }
 
-/* Информация о поддержке */
+/* Поддержка */
 .support-info {
     margin-bottom: 0;
 }
@@ -148,17 +116,15 @@ header .logo {
     color: #555;
 }
 
-/* Описание - убрана синяя полоса */
+/* Описание */
 .description {
     margin-bottom: 25px;
     padding: 15px;
     background-color: #fff;
     border-radius: 4px;
-    /* Убрано свойство border-left */
 }
 
 .description p {
-    /* color: #555; */
     line-height: 1.6;
 }
 
@@ -169,43 +135,80 @@ header .logo {
     color: #2c3e50;
 }
 
-.functions ol {
-    margin-left: 20px;
+.functions-text {
+    white-space: pre-line;
+    line-height: 1.6;
 }
 
-.functions li {
-    margin-bottom: 10px;
-    color: #555;
-    line-height: 1.5;
+/* Корзина в левом нижнем углу */
+.cart-bottom-left {
+    position: fixed;
+    left: 30px;
+    bottom: 30px;
+    z-index: 1000;
+}
+
+.cart-bottom-left a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    position: relative;
+}
+
+.cart-icon {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.cart-icon:hover {
+    transform: scale(1.1);
+}
+
+.cart-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #ff4444;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 /* Адаптивность */
 @media (max-width: 600px) {
-    body {
-        padding: 10px;
-    }
-    
     .container {
         padding: 20px;
     }
-    
+
     .product-layout {
         flex-direction: column;
         gap: 20px;
     }
-    
+
     .product-title {
         font-size: 24px;
-        margin-bottom: 15px;
     }
-    
+
     .functions h2 {
         font-size: 20px;
     }
-}
 
+    .cart-bottom-left {
+        left: 20px;
+        bottom: 20px;
+    }
 
-.functions-text {
-    white-space: pre-line;
-    line-height: 1.6;
+    .cart-icon {
+        width: 40px;
+        height: 40px;
+    }
 }
