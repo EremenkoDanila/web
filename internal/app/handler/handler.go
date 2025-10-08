@@ -17,7 +17,6 @@ func NewHandler(r *repository.Repository) *Handler {
 	return &Handler{Repository: r}
 }
 
-// --- Расчёт времени установки ---
 func calculateInstallTime(size float32) int {
 	rand.Seed(time.Now().UnixNano())
 	speed := rand.Intn(10) + 1 // от 1 до 10 МБ/с
@@ -59,7 +58,7 @@ func (h *Handler) GetOrders(ctx *gin.Context) {
 			continue
 		}
 
-		// пересчёт времени
+
 		for i := range versions {
 			_ = calculateInstallTime(versions[i].Size)
 		}
@@ -161,7 +160,6 @@ func (h *Handler) GetCartItems(ctx *gin.Context) {
 			cartItem.HasVersion = true
 			cartItem.TimeMinutes = calculateInstallTime(foundVersion.Size)
 		} else if searchQuery == "" && cartItem.PresetVersion != "" {
-			// если есть предзаполненная версия
 			versions, err := h.Repository.GetVersionsByOrderID(item.ID)
 			if err == nil && len(versions) > 0 {
 				for _, v := range versions {
