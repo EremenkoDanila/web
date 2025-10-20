@@ -78,14 +78,14 @@ h1 {
 /* Стили для контейнера заявок */
 .requests-container {
     padding: 0 20px;
-    max-width: 80%; /* Изменено с 1400px на 80% */
+    max-width: 80%;
     margin: 0 auto 40px;
 }
 
 /* Заголовки для десктопной версии */
 .card-headers {
     display: grid;
-    grid-template-columns: 2fr 1fr 1.5fr 1fr 1.5fr;
+    grid-template-columns: 2fr 1fr 1.5fr 1fr 1.5fr 1.5fr; /* добавлен новый столбец "Конец установки" */
     gap: 10px;
     padding: 25px 20px;
     background-color: #f8f9fa;
@@ -121,9 +121,10 @@ h1 {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
 }
 
+/* Контент карточки */
 .card-content {
     display: grid;
-    grid-template-columns: 2fr 1fr 1.5fr 1fr 1.5fr;
+    grid-template-columns: 2fr 1fr 1.5fr 1fr 1.5fr 1.5fr; /* добавлен столбец "Конец установки" */
     gap: 10px;
     align-items: center;
 }
@@ -325,11 +326,11 @@ h1 {
     
     .requests-container {
         padding: 0 10px;
-        max-width: 95%; /* На мобильных увеличиваем ширину */
+        max-width: 95%;
     }
 }
 
-/* Дополнительные улучшения для очень маленьких экранов */
+/* Для очень маленьких экранов */
 @media (max-width: 480px) {
     header {
         padding: 15px;
@@ -366,6 +367,6 @@ h1 {
     }
     
     .requests-container {
-        max-width: 100%; /* На очень маленьких экранах используем всю ширину */
+        max-width: 100%;
     }
 }

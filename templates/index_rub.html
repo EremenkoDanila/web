@@ -7,98 +7,90 @@
     <link rel="stylesheet" href="/static/styles/styles_rub.css">
 </head>
 <body>
-    <header>
-        <div class="logo" onclick="window.location.href='/it_soft'" style="cursor: pointer;">IT Soft</div>
-    </header>
-    
-    <main>
-        <h1>Заявки</h1>
-        
-       
-        <div class="phone-input-container">
-            <input type="text" id="phoneNumber" placeholder="Введите телефон" class="phone-input dark-placeholder" value="{{ .Phone }}">
+<header>
+    <div class="logo" onclick="window.location.href='/it_soft'" style="cursor: pointer;">IT Soft</div>
+</header>
+
+<main>
+    <h1>Заявки № ({{ .Count }})</h1>
+
+
+    <div class="phone-input-container">
+        <input type="text" id="phoneNumber" placeholder="Введите телефон" class="phone-input dark-placeholder" value="{{ .Phone }}">
+    </div>
+
+    <div class="requests-container">
+
+        <div class="card-headers">
+            <div class="card-header service-header">Услуга</div>
+            <div class="card-header os-header">ОС</div>
+            <div class="card-header version-header">Версия</div>
+            <div class="card-header size-header">Вес</div>
+            <div class="card-header time-header">Начало установки</div>
+            <div class="card-header finish-header">Конец установки</div>
         </div>
-        
-        <div class="requests-container">
-            
-            <div class="card-headers">
-                <div class="card-header service-header">Услуга</div>
-                <div class="card-header os-header">ОС</div>
-                <div class="card-header version-header">Версия</div>
-                <div class="card-header size-header">Вес</div>
-                <div class="card-header time-header">Время установки</div>
-            </div>
-            
-            <div class="cards-container">
-                {{ range $currentItem := .cartItems }}
-                <div class="request-card">
-                    <div class="card-content">
-                        
-                        <div class="card-field service-field">
-                            <div class="service-item">
-                                <img src="{{ $currentItem.IMG }}" alt="{{ $currentItem.Title }}" class="service-icon">
-                                <a href="/apps/{{ $currentItem.Title }}" class="service-name" style="text-decoration: none; color: inherit;">{{ $currentItem.Title }}</a>
-                            </div>
-                        </div>
-                        
-                        
-                        <div class="card-field os-field">
-                            <div class="field-value">{{ $currentItem.OS }}</div>
-                        </div>
-                        
-                        
-                        <div class="card-field version-field">
-                            <div class="search-bar">
-                                <form action="/cart" method="GET" class="search-form">
-                                    {{ range $otherItem := $.cartItems }}
-                                        {{ if ne $otherItem.ID $currentItem.ID }}
-                                            {{ if $otherItem.SearchQuery }}
-                                            <input type="hidden" name="apps_{{ $otherItem.Title }}" value="{{ $otherItem.SearchQuery }}">
-                                            {{ end }}
-                                        {{ end }}
-                                    {{ end }}
-                                    
-                                    <input type="text" name="apps_{{ $currentItem.Title }}" 
-                                        placeholder="{{ if $currentItem.HasVersion }}{{ $currentItem.FoundVersion.Number }}{{ else }}Введите версию{{ end }}" 
-                                        value="{{ if $currentItem.SearchQuery }}{{ $currentItem.SearchQuery }}{{ else if $currentItem.PresetVersion }}{{ $currentItem.PresetVersion }}{{ else if $currentItem.HasVersion }}{{ $currentItem.FoundVersion.Number }}{{ else }}{{ end }}"
-                                        class="search-input dark-placeholder">
-                                </form>
-                            </div>
-                            {{ if not $currentItem.HasVersion }}
-                            <div class="version-not-found">Версия не найдена</div>
-                            {{ end }}
-                        </div>
-                        
-                        
-                        <div class="card-field size-field">
-                            <div class="field-value">
-                                {{ if $currentItem.HasVersion }}
-                                    {{ $currentItem.FoundVersion.Size }} Gb
-                                {{ else }}
-                                    N/A
-                                {{ end }}
-                            </div>
-                        </div>
-                        
-                        
-                        <div class="card-field time-field">
-                            <div class="field-value">
-                                {{ if $currentItem.HasVersion }}
-                                    {{ $currentItem.TimeMinutes }} минут
-                                {{ else }}
-                                    N/A
-                                {{ end }}
-                            </div>
+
+        <div class="cards-container">
+            {{ range $currentItem := .cartItems }}
+            <div class="request-card">
+                <div class="card-content">
+
+                    <!-- Услуга -->
+                    <div class="card-field service-field">
+                        <div class="service-item">
+                            <img src="{{ $currentItem.IMG }}" alt="{{ $currentItem.Title }}" class="service-icon">
+                            <a href="/Software/{{ $currentItem.ID }}" class="service-name" style="text-decoration: none; color: inherit;">{{ $currentItem.Title }}</a>
                         </div>
                     </div>
+
+                    <!-- ОС -->
+                    <div class="card-field os-field">
+                        <div class="field-value">{{ $currentItem.OS }}</div>
+                    </div>
+
+                    <!-- Версия -->
+                    <div class="card-field version-field">
+                        <div class="field-value">{{ $currentItem.Version }}</div>
+                    </div>
+
+                    <!-- Вес -->
+                    <div class="card-field size-field">
+                        <div class="field-value">{{ $currentItem.Size }} ГБ</div>
+                    </div>
+
+                    <!-- Начало установки -->
+                    <div class="card-field time-field">
+                        <div class="search-bar">
+                            <form action="/cart" method="GET" class="search-form">
+                                <input type="text"
+                                       name="install_time_{{ $currentItem.Title }}"
+                                       placeholder="{{ if $currentItem.InstallTime }}{{ $currentItem.InstallTime }}{{ else }}Введите время (напр. 14:30){{ end }}"
+                                       value="{{ if $currentItem.InstallTime }}{{ $currentItem.InstallTime }}{{ end }}"
+                                       class="search-input dark-placeholder">
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Конец установки -->
+                    <div class="card-field finish-field">
+                        <div class="field-value">
+                            {{ if $currentItem.InstallTime }}
+                                {{ $currentItem.FinishTime }}
+                            {{ else }}
+                                -
+                            {{ end }}
+                        </div>
+                    </div>
+
                 </div>
-                {{ else }}
-                <div class="request-card empty-card">
-                    <div class="empty-cart">Корзина пуста</div>
-                </div>
-                {{ end }}
             </div>
+            {{ else }}
+            <div class="request-card empty-card">
+                <div class="empty-cart">Корзина пуста</div>
+            </div>
+            {{ end }}
         </div>
-    </main>
+    </div>
+</main>
 </body>
 </html>

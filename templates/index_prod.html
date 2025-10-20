@@ -7,60 +7,56 @@
     <link rel="stylesheet" href="/static/styles/styles_prod.css">
 </head>
 <body>
-    <header>
-        <div class="logo" onclick="window.location.href='/it_soft'" style="cursor: pointer;">IT Soft</div>
-    </header>
+<header>
+    <div class="logo" onclick="window.location.href='/it_soft'" style="cursor: pointer;">IT Soft</div>
+</header>
 
-    <main>
-        <div class="container">
-            <div class="product-layout">
-                <div class="image-section">
-                    <img src="{{.order.IMG}}" alt="{{.order.Title}} Logo" class="product-image">
-                </div>
-                <div class="content-section">
-                    <h1 class="product-title">{{.order.Title}}</h1>
-                    
-                    <section class="support-info">
-                        <div class="support-row">
-                            <span class="label">Поддержка:</span>
-                            <span class="value">{{.order.OS}}</span>
-                        </div>
-                        <div class="support-row">
-                            <span class="label">Поддерживаемые версии:</span>
-                        </div>
-                        <div class="version-list">
-                            {{range .versions}}
-                            <div class="version-item">
-                                <span class="version">v {{.Number}}</span>
-                                <span class="size">- {{.Size}} Gb</span>
-                            </div>
-                            {{else}}
-                            <p>Версии не найдены</p>
-                            {{end}}
-                        </div>
-                    </section>
-                </div>
+<main>
+    <div class="container">
+        <div class="product-layout">
+            <div class="image-section">
+                <img src="{{.order.IMG}}" alt="{{.order.Title}} Logo" class="product-image">
             </div>
-            
-            <section class="description">
-                <p>{{.order.FullDescription}}</p>
-            </section>
-            
-            <section class="functions">
-                <h2>Основные функции:</h2>
-                <div class="functions-text">
-                    {{.order.Functions}}
-                </div>
-            </section>
+            <div class="content-section">
+                <h1 class="product-title">{{.order.Title}}</h1>
+
+                <section class="support-info">
+                    <div class="support-row">
+                        <span class="label">Поддержка:</span>
+                        <span class="value">{{.order.OS}}</span>
+                    </div>
+                    <div class="support-row">
+                        <span class="label">Версия:</span>
+                        <span class="value">{{.order.Version}}</span>
+                    </div>
+                    <div class="support-row">
+                        <span class="label">Размер:</span>
+                        <span class="value">{{.order.Size}} ГБ</span>
+                    </div>
+                </section>
+            </div>
         </div>
 
-    
-        <div class="cart-bottom-left">
-            <a href="#">
-                <img onclick="window.location.href='/cart'" src="http://127.0.0.1:9000/lb1/cart.png" alt="Cart" class="cart-icon">
-                <span class="cart-count">{{ .CartCount }}</span>
-            </a>
-        </div>
-    </main>
+        <section class="description">
+            <p>{{.order.FullDescription}}</p>
+        </section>
+
+        <section class="functions">
+            <h2>Основные функции:</h2>
+            <div class="functions-text">
+                {{.order.Functions}}
+            </div>
+        </section>
+    </div>
+
+    <div class="cart-bottom-left">
+        <a href="#">
+            <img onclick="window.location.href='/Software_request/{{ .CartCount }}/{{ .CartID }}'" 
+                 src="http://127.0.0.1:9000/lb1/cart.png" 
+                 alt="Cart" class="cart-icon">
+            <span class="cart-count">{{ .CartCount }}</span>
+        </a>
+    </div>
+</main>
 </body>
 </html>
