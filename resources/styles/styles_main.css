@@ -119,6 +119,10 @@ header .logo {
     transform: scale(1.1);
 }
 
+.cart-icon.disabled {
+    filter: grayscale(100%) opacity(0.6);
+}
+
 .cart-count {
     position: absolute;
     top: -8px;
@@ -133,6 +137,11 @@ header .logo {
     justify-content: center;
     font-size: 14px;
     font-weight: bold;
+}
+
+.cart-count.empty {
+    background-color: #cccccc;
+    /* Убираем display: none, чтобы отображался серый кружок с 0 */
 }
 
 /* Основной контент */
@@ -208,6 +217,46 @@ h1 {
     transform: translateY(-5px);
 }
 
+/* Стили для формы добавления */
+.add-form {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    margin: 0;
+}
+
+.add-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.add-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    background: linear-gradient(135deg, #45a049, #4CAF50);
+}
+
+.add-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.btn-icon {
+    font-size: 18px;
+    font-weight: bold;
+}
+
 /* Адаптивность для мобильных устройств */
 @media (max-width: 1024px) {
     .software-cards {
@@ -218,8 +267,6 @@ h1 {
         width: 90%;
     }
 }
-
-
 
 @media (max-width: 768px) {
     .software-cards {
@@ -238,5 +285,10 @@ h1 {
     .cart-icon {
         width: 40px;
         height: 40px;
+    }
+    
+    .add-btn {
+        padding: 6px 12px;
+        font-size: 13px;
     }
 }

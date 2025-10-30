@@ -167,6 +167,10 @@ main {
     transform: scale(1.1);
 }
 
+.cart-icon.disabled {
+    filter: grayscale(100%) opacity(0.6);
+}
+
 .cart-count {
     position: absolute;
     top: -8px;
@@ -181,6 +185,10 @@ main {
     justify-content: center;
     font-size: 14px;
     font-weight: bold;
+}
+
+.cart-count.empty {
+    background-color: #cccccc;
 }
 
 /* Адаптивность */

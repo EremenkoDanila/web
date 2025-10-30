@@ -41,6 +41,8 @@ main {
     padding: 0 20px;
     max-width: 1400px;
     margin: 0 auto;
+    position: relative;
+    min-height: 80vh;
 }
 
 h1 {
@@ -78,25 +80,27 @@ h1 {
 /* Стили для контейнера заявок */
 .requests-container {
     padding: 0 20px;
-    max-width: 80%;
+    max-width: 95%; /* Увеличим максимальную ширину */
     margin: 0 auto 40px;
 }
 
-/* Заголовки для десктопной версии */
+/* Заголовки для десктопной версии - ИСПРАВЛЕНО */
 .card-headers {
     display: grid;
-    grid-template-columns: 2fr 1fr 1.5fr 1fr 1.5fr 1.5fr; /* добавлен новый столбец "Конец установки" */
-    gap: 10px;
-    padding: 25px 20px;
+    grid-template-columns: 2fr 1fr 1.2fr 0.8fr 1.5fr 1.5fr; /* Подобраны оптимальные пропорции */
+    gap: 8px; /* Уменьшаем gap */
+    padding: 20px 15px; /* Уменьшаем padding */
     background-color: #f8f9fa;
     border-radius: 12px 12px 0 0;
     margin-bottom: 10px;
     font-weight: 600;
     color: #333;
-    font-size: 18px;
+    font-size: 16px; /* Немного уменьшаем размер шрифта */
     text-align: center;
     border-bottom: 2px solid #e9ecef;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    word-wrap: break-word; /* Разрешаем перенос слов */
+    line-height: 1.3; /* Уменьшаем межстрочный интервал */
 }
 
 /* Контейнер для карточек */
@@ -121,17 +125,19 @@ h1 {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
 }
 
-/* Контент карточки */
+/* Контент карточки - ИСПРАВЛЕНО */
 .card-content {
     display: grid;
-    grid-template-columns: 2fr 1fr 1.5fr 1fr 1.5fr 1.5fr; /* добавлен столбец "Конец установки" */
-    gap: 10px;
+    grid-template-columns: 2fr 1fr 1.2fr 0.8fr 1.5fr 1.5fr; /* Те же пропорции что и в заголовках */
+    gap: 8px; /* Уменьшаем gap */
     align-items: center;
 }
 
 .card-field {
-    padding: 10px;
+    padding: 8px 5px; /* Уменьшаем padding */
     text-align: center;
+    word-wrap: break-word; /* Разрешаем перенос слов */
+    line-height: 1.3; /* Уменьшаем межстрочный интервал */
 }
 
 /* Стили для ячеек с услугами */
@@ -144,19 +150,19 @@ h1 {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 8px; /* Уменьшаем gap */
 }
 
 .service-icon {
-    width: 80px;
-    height: 80px;
+    width: 70px; /* Немного уменьшаем размер иконки */
+    height: 70px;
     object-fit: contain;
 }
 
 .service-name {
     font-weight: 600;
     color: #007bff;
-    font-size: 25px;
+    font-size: 22px; /* Немного уменьшаем размер шрифта */
     text-decoration: none;
     transition: color 0.2s ease;
     text-align: center;
@@ -208,7 +214,7 @@ h1 {
 .field-value {
     font-weight: 500;
     color: #333;
-    font-size: 20px;
+    font-size: 18px; /* Немного уменьшаем размер шрифта */
 }
 
 .empty-cart {
@@ -252,6 +258,60 @@ h1 {
 .phone-input:not(:focus):not(:placeholder-shown),
 .search-input:not(:focus):not(:placeholder-shown) {
     border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+/* Новые стили для кнопки удаления */
+.delete-btn-container {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0;
+}
+
+.delete-request-btn {
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+}
+
+.delete-request-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 68, 68, 0.4);
+    background: linear-gradient(135deg, #cc0000, #ff4444);
+}
+
+.delete-request-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(255, 68, 68, 0.3);
+}
+
+/* Стили для поля ввода времени установки */
+.install-time-input {
+    padding: 8px 10px; /* Уменьшаем padding */
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 15px; /* Немного уменьшаем размер шрифта */
+    text-align: center;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+    max-width: 180px; /* Уменьшаем максимальную ширину */
+}
+
+.install-time-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.install-time-input::placeholder {
+    color: #999;
+    font-style: italic;
 }
 
 /* Адаптивность для мобильных устройств */
@@ -328,6 +388,16 @@ h1 {
         padding: 0 10px;
         max-width: 95%;
     }
+
+    .install-time-input {
+        max-width: 100%;
+        font-size: 14px;
+    }
+
+    .delete-request-btn {
+        padding: 10px 25px;
+        font-size: 15px;
+    }
 }
 
 /* Для очень маленьких экранов */
@@ -369,4 +439,18 @@ h1 {
     .requests-container {
         max-width: 100%;
     }
+}
+
+/* Дополнительные стили для лучшего отображения длинного текста */
+.time-header, .finish-header {
+    white-space: nowrap; /* Запрещаем перенос внутри слов */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Добавляем многоточие если текст не помещается */
+}
+
+.card-field.time-field, 
+.card-field.finish-field {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

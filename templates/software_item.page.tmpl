@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Soft - {{.order.Title}}</title>
-    <link rel="stylesheet" href="/static/styles/styles_prod.css">
+    <link rel="stylesheet" href="/styles/styles_prod.css">
 </head>
 <body>
 <header>
-    <div class="logo" onclick="window.location.href='/it_soft'" style="cursor: pointer;">IT Soft</div>
+    <div class="logo" onclick="window.location.href='/software'" style="cursor: pointer;">IT Soft</div>
 </header>
 
 <main>
     <div class="container">
         <div class="product-layout">
             <div class="image-section">
-                <img src="{{.order.IMG}}" alt="{{.order.Title}} Logo" class="product-image">
+                <img src="{{.order.ImgURL}}" alt="{{.order.Title}} Logo" class="product-image">
             </div>
             <div class="content-section">
                 <h1 class="product-title">{{.order.Title}}</h1>
@@ -49,14 +49,19 @@
         </section>
     </div>
 
+    <!-- Корзина -->
     <div class="cart-bottom-left">
-        <a href="#">
-            <img onclick="window.location.href='/Software_request/{{ .CartCount }}/{{ .CartID }}'" 
-                 src="http://127.0.0.1:9000/lb1/cart.png" 
-                 alt="Cart" class="cart-icon">
-            <span class="cart-count">{{ .CartCount }}</span>
+        <a href="{{ if gt .cart_count 0 }}/software_request/{{ .request_id }}{{ else }}#{{ end }}">
+            <img 
+                src="http://127.0.0.1:9000/lb1/cart.png" 
+                alt="Cart" 
+                class="cart-icon {{ if eq .cart_count 0 }}disabled{{ end }}">
+            <span class="cart-count {{ if eq .cart_count 0 }}empty{{ end }}">
+                {{ .cart_count }}
+            </span>
         </a>
     </div>
+
 </main>
 </body>
 </html>

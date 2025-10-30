@@ -1,0 +1,578 @@
+package main
+
+import (
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+	"lab1/internal/app/config"
+	"lab1/internal/app/dsn"
+	"lab1/internal/app/handler"
+	"lab1/internal/app/repository"
+	"lab1/internal/pkg"
+)
+
+func main() {
+	router := gin.Default()
+	conf, err := config.NewConfig()
+	if err != nil {
+		logrus.Fatalf("error loading config: %v", err)
+	}
+
+	postgresString := dsn.FromEnv()
+	fmt.Println(postgresString)
+
+	rep, errRep := repository.New(postgresString)
+	if errRep != nil {
+		logrus.Fatalf("error initializing repository: %v", errRep)
+	}
+
+	hand := handler.NewHandler(rep)
+
+	application := pkg.NewApp(conf, router, hand)
+	application.RunApp()
+}
+package ds
+
+import "time"
+
+type InstallationTime struct {
+    SoftwareId  uint       `gorm:"primaryKey" json:"software_id"`
+    RequestID   uint       `gorm:"primaryKey" json:"request_id"`
+    InstallTime *time.Time `gorm:"type:timestamp;default:null" json:"install_time"`
+    FinalTime   *time.Time `gorm:"type:timestamp;default:null" json:"final_time"`
+
+    Software Software        `gorm:"foreignKey:SoftwareId;references:SoftwareId"`
+    Request  SoftwareRequest `gorm:"foreignKey:RequestID;references:RequestID"`
+}
+
+
+package ds
+
+type Software struct {
+	SoftwareId      uint    `gorm:"primaryKey;autoIncrement" json:"software_id"`
+	DeletedFlg      bool    `gorm:"type:boolean;not null;default:false" json:"deleted_flg"`
+	Title           string  `gorm:"type:varchar(128);not null" json:"title"`
+	Description     string  `gorm:"type:varchar(128)" json:"description"`          
+	FullDescription string  `gorm:"type:varchar(128)" json:"full_description"`     
+	ImgURL          string  `gorm:"type:varchar(128)" json:"img_url"`              
+	OS              string  `gorm:"type:varchar(128);not null" json:"os"`   
+	Size            float64 `gorm:"type:varchar(128);not null" json:"size"`
+	Version         string  `gorm:"type:varchar(32);not null" json:"version"` 
+	Functions       string  `gorm:"type:text" json:"functions"`            
+
+	// Для миграции временно закомментировано
+	// Installations []InstallationTime `gorm:"foreignKey:SoftwareId"`
+}
+
+package ds
+
+import (
+	"database/sql"
+	"time"
+)
+
+type SoftwareRequest struct {
+	RequestID   uint           `gorm:"primaryKey;autoIncrement" json:"request_id"`
+	Status      string         `gorm:"type:varchar(32);not null" json:"status"`
+	CreateDt    time.Time      `gorm:"not null" json:"create_dt"`
+	UpdateDt    time.Time      `gorm:"not null" json:"update_dt"`
+	FinishDt    sql.NullTime   `gorm:"default:null" json:"finish_dt"`
+	CreatorID   uint           `gorm:"not null" json:"creator_id"`
+	ModeratorID uint           `gorm:"default:null" json:"moderator_id"`
+	Phone       sql.NullString `gorm:"type:varchar(32);default:null" json:"phone"`
+
+	Creator   Users `gorm:"foreignKey:CreatorID;references:UserID"`
+	Moderator Users `gorm:"foreignKey:ModeratorID;references:UserID"`
+
+	// Для миграции временно закомментировано
+	// Installations []InstallationTime `gorm:"foreignKey:RequestID"`
+}
+
+package ds
+
+type Users struct {
+	UserID       uint   `gorm:"primaryKey;autoIncrement" json:"user_id"`
+	Login        string `gorm:"type:varchar(32);unique;not null" json:"login"`
+	Password     string `gorm:"type:varchar(32);not null" json:"password"`
+	ModeratorFlg bool   `gorm:"type:boolean;default:false" json:"moderator_flg"`
+
+	CreatedRequests   []SoftwareRequest `gorm:"foreignKey:CreatorID"`
+	ModeratedRequests []SoftwareRequest `gorm:"foreignKey:ModeratorID"`
+}
+
+У меня есть 2 папки: 
+handler:
+файл handler.GO НЕ МЕНЯТЬ
+package handler
+
+import (
+	"github.com/gin-gonic/gin"
+	"lab1/internal/app/repository"
+)
+
+type Handler struct {
+	Repository *repository.Repository
+}
+
+func NewHandler(r *repository.Repository) *Handler {
+	return &Handler{Repository: r}
+}
+
+func (h *Handler) RegisterHandler(router *gin.Engine) {
+	router.GET("/software", h.GetAllSoftware)
+	router.GET("/software/:id", h.GetSoftwareByID)
+	router.GET("/software_request/:id", h.GetCartByRequestID)
+	router.POST("/software/add_to_request", h.AddSoftwareToRequest)
+	router.POST("/software_request/delete", h.DeleteRequest)
+	router.POST("/software_request/update_time", h.UpdateInstallTime)
+	router.POST("/software_request/update_phone", h.UpdatePhone)
+}
+
+
+func (h *Handler) RegisterStatic(router *gin.Engine) {
+	router.LoadHTMLGlob("templates/*")
+	router.Static("/styles", "./resources/styles")
+	router.Static("/img", "./resources/img")
+}
+software.go:
+
+package handler
+
+import (
+	"fmt"
+	"lab1/internal/app/ds"
+	"net/http"
+	"strconv"
+	"time"
+	"math/rand"
+	"github.com/gin-gonic/gin"
+)
+
+// ===== Software =====
+func (h *Handler) GetAllSoftware(ctx *gin.Context) {
+	apps := ctx.Query("apps")
+	var sw []ds.Software
+	var err error
+
+	if apps != "" {
+		sw, err = h.Repository.SearchSoftwareByTitle(apps)
+	} else {
+		sw, err = h.Repository.GetAllSoftware()
+	}
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	req, err := h.Repository.GetDraftRequest(2)
+	requestID := 0
+	cartCount := 0
+	if err == nil {
+		requestID = int(req.RequestID)
+		cartCount = int(h.Repository.GetCartCount(2))
+	}
+
+	ctx.HTML(http.StatusOK, "software.page.tmpl", gin.H{
+		"data":       sw,
+		"cart_count": cartCount,
+		"request_id": requestID,
+		"apps":       apps,
+	})
+}
+
+func (h *Handler) GetSoftwareByID(ctx *gin.Context) {
+	id, _ := strconv.Atoi(ctx.Param("id"))
+
+	sw, err := h.Repository.GetSoftwareByID(uint(id))
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "ПО не найдено"})
+		return
+	}
+
+	req, err := h.Repository.GetDraftRequest(2)
+	requestID := 0
+	cartCount := 0
+	if err == nil {
+		requestID = int(req.RequestID)
+		cartCount = int(h.Repository.GetCartCount(2))
+	}
+
+	ctx.HTML(http.StatusOK, "software_item.page.tmpl", gin.H{
+		"order":      sw,
+		"cart_count": cartCount,
+		"request_id": requestID,
+	})
+}
+
+// ===== Request / Cart =====
+type CartItem struct {
+	ds.Software
+	Install string
+	Final   string
+}
+
+func (h *Handler) GetCartByRequestID(ctx *gin.Context) {
+	requestID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request id"})
+		return
+	}
+
+	req, err := h.Repository.GetRequestByID(uint(requestID), 2)
+	if err != nil {
+		ctx.HTML(http.StatusOK, "cart.page.tmpl", gin.H{"empty": true})
+		return
+	}
+
+	installations, err := h.Repository.GetInstallationsByRequestID(uint(requestID))
+	if err != nil || len(installations) == 0 {
+		ctx.HTML(http.StatusOK, "cart.page.tmpl", gin.H{"empty": true})
+		return
+	}
+
+	items := []CartItem{}
+	for _, inst := range installations {
+		install := ""
+		final := ""
+
+		if inst.InstallTime != nil {
+			install = inst.InstallTime.Format("2006-01-02 15:04")
+		}
+		if inst.FinalTime != nil {
+			final = inst.FinalTime.Format("2006-01-02 15:04")
+		}
+
+		items = append(items, CartItem{
+			Software: inst.Software,
+			Install:  install,
+			Final:    final,
+		})
+	}
+
+	phone := ""
+	if req.Phone.Valid {
+		phone = req.Phone.String
+	}
+
+	ctx.HTML(http.StatusOK, "cart.page.tmpl", gin.H{
+		"items":      items,
+		"cart_count": len(items),
+		"Phone":      phone,
+		"Count":      requestID,
+		"Status":     req.Status,
+	})
+}
+
+func (h *Handler) AddSoftwareToRequest(ctx *gin.Context) {
+	userID := uint(2)
+
+	softwareID, err := strconv.Atoi(ctx.PostForm("software_id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid software id"})
+		return
+	}
+
+	req, err := h.Repository.GetDraftRequest(userID)
+	if err != nil {
+		req, err = h.Repository.CreateDraftRequest(userID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	}
+
+	count := h.Repository.GetInstallationCount(req.RequestID, uint(softwareID))
+	if count > 0 {
+		ctx.Redirect(http.StatusFound, "/software")
+		return
+	}
+
+	err = h.Repository.AddSoftwareToRequest(req.RequestID, uint(softwareID))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.Redirect(http.StatusFound, "/software")
+}
+
+func (h *Handler) DeleteRequest(ctx *gin.Context) {
+	userID := uint(2)
+	requestID, err := strconv.Atoi(ctx.PostForm("request_id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request id"})
+		return
+	}
+
+	err = h.Repository.DeleteRequestByCursor(uint(requestID), userID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.Redirect(http.StatusFound, "/software")
+}
+
+// ===== Update Install Time =====
+func (h *Handler) UpdateInstallTime(ctx *gin.Context) {
+	userID := uint(2)
+
+	softwareID, err := strconv.Atoi(ctx.PostForm("software_id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid software id"})
+		return
+	}
+
+	installTimeStr := ctx.PostForm("install_time")
+	installTime, err := time.Parse("2006-01-02 15:04", installTimeStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid time format"})
+		return
+	}
+
+	req, err := h.Repository.GetDraftRequest(userID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "draft request not found"})
+		return
+	}
+
+	sw, err := h.Repository.GetSoftwareByID(uint(softwareID))
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "software not found"})
+		return
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	speed := float64(rand.Intn(10) + 1)
+
+	durationMin := sw.Size / speed * 60
+	finalTime := installTime.Add(time.Duration(durationMin) * time.Minute)
+
+	err = h.Repository.UpdateInstallTime(req.RequestID, uint(softwareID), &installTime, &finalTime)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.Redirect(http.StatusFound, fmt.Sprintf("/software_request/%d", req.RequestID))
+}
+
+func (h *Handler) UpdatePhone(ctx *gin.Context) {
+	userID := uint(2)
+
+	requestID, err := strconv.Atoi(ctx.PostForm("request_id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request id"})
+		return
+	}
+
+	phone := ctx.PostForm("phone")
+
+	err = h.Repository.UpdatePhone(uint(requestID), userID, phone)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.Redirect(http.StatusFound, fmt.Sprintf("/software_request/%d", requestID))
+}
+
+Пакпка repository:
+ФАЙЛ repository.go НЕ МЕНЯТЬ 
+
+package repository
+
+import (
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+)
+
+type Repository struct {
+	DB *gorm.DB
+}
+
+func New(dsn string) (*Repository, error) {
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	return &Repository{DB: db}, nil
+}
+
+software.go:
+package repository
+
+import (
+	"fmt"
+	"lab1/internal/app/ds"
+	"time"
+)
+
+// Software Queries
+func (r *Repository) GetAllSoftware() ([]ds.Software, error) {
+	var sw []ds.Software
+	err := r.DB.Where("deleted_flg = false").Find(&sw).Error
+	return sw, err
+}
+
+func (r *Repository) GetSoftwareByID(id uint) (*ds.Software, error) {
+	var sw ds.Software
+	err := r.DB.Where("software_id = ? AND deleted_flg = false", id).First(&sw).Error
+	if err != nil {
+		return nil, err
+	}
+	return &sw, err
+}
+
+func (r *Repository) SearchSoftwareByTitle(title string) ([]ds.Software, error) {
+	var sw []ds.Software
+	err := r.DB.Where("(title ILIKE ? OR description ILIKE ?) AND deleted_flg = false",
+		"%"+title+"%", "%"+title+"%").Find(&sw).Error
+	return sw, err
+}
+
+func (r *Repository) SoftDeleteSoftware(id uint) error {
+	return r.DB.Model(&ds.Software{}).Where("software_id = ?", id).Update("deleted_flg", true).Error
+}
+
+// Request
+func (r *Repository) GetDraftRequest(userID uint) (*ds.SoftwareRequest, error) {
+	var req ds.SoftwareRequest
+	err := r.DB.Where("creator_id = ? AND status = 'draft'", userID).First(&req).Error
+	if err != nil {
+		return nil, err
+	}
+	return &req, err
+}
+
+func (r *Repository) CreateDraftRequest(userID uint) (*ds.SoftwareRequest, error) {
+	req := ds.SoftwareRequest{
+		Status:    "draft",
+		CreateDt:  time.Now(),
+		UpdateDt:  time.Now(),
+		CreatorID: userID,
+	}
+	err := r.DB.Create(&req).Error
+	return &req, err
+}
+
+func (r *Repository) AddSoftwareToRequest(requestID, softwareID uint) error {
+	install := ds.InstallationTime{
+		RequestID:  requestID,
+		SoftwareId: softwareID,
+		InstallTime: nil,
+		FinalTime:   nil,
+	}
+	return r.DB.Create(&install).Error
+}
+
+func (r *Repository) GetCartCount(userID uint) int64 {
+	var count int64
+	req, err := r.GetDraftRequest(userID)
+	if err != nil {
+		return 0
+	}
+	r.DB.Model(&ds.InstallationTime{}).Where("request_id = ?", req.RequestID).Count(&count)
+	return count
+}
+
+func (r *Repository) UpdateInstallTime(requestID, softwareID uint, installTime, finalTime *time.Time) error {
+	return r.DB.Model(&ds.InstallationTime{}).
+		Where("request_id = ? AND software_id = ?", requestID, softwareID).
+		Updates(map[string]interface{}{
+			"install_time": installTime,
+			"final_time":   finalTime,
+		}).Error
+}
+
+func (r *Repository) DeleteRequestByCursor(requestID, userID uint) error {
+	cursor := fmt.Sprintf(
+		"UPDATE software_requests SET status='deleted' WHERE request_id=%d AND creator_id=%d",
+		requestID, userID)
+	return r.DB.Exec(cursor).Error
+}
+
+// ===== Новые методы =====
+func (r *Repository) GetRequestByID(requestID, userID uint) (*ds.SoftwareRequest, error) {
+	var req ds.SoftwareRequest
+	err := r.DB.Preload("Creator").
+		Where("request_id = ? AND creator_id = ?", requestID, userID).
+		First(&req).Error
+	return &req, err
+}
+
+func (r *Repository) GetInstallationsByRequestID(requestID uint) ([]ds.InstallationTime, error) {
+	var installations []ds.InstallationTime
+	err := r.DB.Preload("Software").
+		Where("request_id = ?", requestID).
+		Find(&installations).Error
+	return installations, err
+}
+
+func (r *Repository) GetInstallationCount(requestID, softwareID uint) int64 {
+	var count int64
+	r.DB.Model(&ds.InstallationTime{}).
+		Where("request_id = ? AND software_id = ?", requestID, softwareID).
+		Count(&count)
+	return count
+}
+
+func (r *Repository) UpdatePhone(requestID, userID uint, phone string) error {
+	return r.DB.Model(&ds.SoftwareRequest{}).
+		Where("request_id = ? AND creator_id = ? AND status = 'draft'", requestID, userID).
+		Update("phone", phone).Error
+}
+
+
+    -- Вставка данных в таблицу users
+    INSERT INTO users (user_id, login, password, moderator_flg) VALUES
+    (1, 'admin', 'admin123', true),    -- Администратор (модератор)
+    (2, 'client', 'client123', false); -- Обычный клиент
+
+
+    -- Вставка данных в таблицу software (из orders)
+    INSERT INTO softwares (software_id, deleted_flg, title, description, full_description, img_url, os, size, version, functions) VALUES
+    (1, false, 'GIT', 'GIT - система контроля версий', 'Git — система контроля версий для отслеживания изменений в файлах и совместной работы.', 'http://127.0.0.1:9000/lb1/Git_icon.png', 'Linux', 1.5, '2.45', '1. Создание репозитория\n2. Добавление изменений в индекс\n3. Фиксация изменений\n4. Просмотр статуса и истории изменений\n5. Ветвление\n6. Слияние веток'),
+    (2, false, 'Open Shift', 'Open Shift - управление контейнерами', 'Платформа контейнеризации и оркестрации приложений на базе Kubernetes.', 'http://127.0.0.1:9000/lb1/open_shift.png', 'Linux', 18.2, '4.15', '1. Оркестрация контейнеров\n2. Автоматическое масштабирование\n3. Непрерывное развертывание\n4. Мониторинг и логирование\n5. Управление сетями\n6. Балансировка нагрузки'),
+    (3, false, 'PostgreSQL', 'PostgreSQL - система управления БД', 'Надёжная объектно-реляционная СУБД с открытым исходным кодом.', 'http://127.0.0.1:9000/lb1/Postgre_SQL.png', 'Linux', 22.3, '15.1', '1. Подключение к различным СУБД\n2. Редактор SQL запросов\n3. Визуальное построение запросов\n4. Управление схемами БД\n5. Экспорт и импорт данных\n6. Генерация ER-диаграмм'),
+    (4, false, 'DBeaver', 'DBeaver - инструмент для работы с БД', 'Многоплатформенный инструмент для управления и проектирования СУБД.', 'http://127.0.0.1:9000/lb1/dbeaver.png', 'Linux', 22.3, '15.1', '1. Подключение к различным СУБД\n2. Редактор SQL запросов\n3. Визуальное построение запросов\n4. Управление схемами БД\n5. Экспорт и импорт данных\n6. Генерация ER-диаграмм');
+
+    -- Вставка данных в таблицу software_request (из cart_data)
+    -- Предполагается, что есть пользователи с ID 1 (CreatorID) и 2 (ModeratorID)
+    INSERT INTO software_requests (request_id, status, create_dt, update_dt, finish_dt, creator_id, moderator_id, phone) VALUES
+    (1, 'completed', NOW(), NOW(), NULL, 2, 1, '8-800-555-35-35');
+
+    -- Вставка данных в таблицу installation_time (из cart_to_service)
+    INSERT INTO installation_times (software_id, request_id, install_time, final_time) VALUES
+    (1, 1, '12:00', ''),
+    (2, 1, '15:00', '');
+
+
+    Виды заявкой
+    черновик - draft
+    удалён - deleted
+    сформирован - formed
+    завершён - completed
+    отклонён - rejected
+
+нужно сделать
+
+Сейчас когда я добавляю новый товар в карзину у меня поля в СУБД update_dt остается не изменной, нужно сделать ее изменяющейся. Например при добавление нового товара менял время установки то менялась update_dt
+Важно соблюдать чистую архитектуру, в handler вся логика обработки данных, а в repository логика получения данных. 
+Старайся поминимум править код 
+
+
+
+
+1) сделать расчет скорости установки не постоянной, а рандомной от 1 до 10 мб/с  
+2) Сделать так чтобы время InstallTime и FinalTime по умолчанию просто не заполнялись, становились NULL.
+
+
+1) изменить кнопки
+2) сделать ввод красивым
+5) сделать картинку карзины интерактивной не кликабельной при 0 и серой
+
+
+6) проверить код 
+7) убрать из Handler обращение в СУБД в функицях GetCartByRequestID AddSoftwareToRequest UpdatePhone

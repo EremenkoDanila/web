@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Soft - Серверное ПО</title>
+    <link rel="stylesheet" href="/styles/styles_main.css">
+</head>
+<body>
+<header>
+    <div class="logo" onclick="window.location.href='/software'" style="cursor: pointer;">IT Soft</div>
+</header>
+
+<main>
+    <!-- Поисковая строка -->
+    <div class="search-container">
+        <div class="search-bar">
+            <form action="/software" method="GET">
+                <input type="text" name="apps" placeholder="Быстрый поиск" value="{{ .apps  }}">
+                <button class="mag_glass">
+                    <img src="http://127.0.0.1:9000/lb1/search.png" alt="Search">
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <h1>Серверное ПО</h1>
+
+    <div class="software-cards">
+        {{ range .data }}
+        <div class="card">
+            <a href="/software/{{ .SoftwareId }}" class="card-title-link" style="text-decoration: none; color: inherit;">
+                <h2>{{ .Title }}</h2>
+            </a>
+            <img src="{{ .ImgURL }}" alt="{{ .Title }} logo">
+            <p>Версия: {{ .Version }}</p>
+            <p>Размер: {{ .Size }} ГБ</p>
+            <p>{{ .Description }}</p>
+
+            <form action="/software/add_to_request" method="POST" class="add-form">
+                <input type="hidden" name="software_id" value="{{ .SoftwareId }}">
+                <button type="submit" class="add-btn">
+                    <span class="btn-text">Добавить в заявку</span>
+                    <span class="btn-icon">+</span>
+                </button>
+            </form>
+        </div>
+        {{ else }}
+        <p>Нет доступных заказов</p>
+        {{ end }}
+    </div>
+
+    <!-- Корзина -->
+    <div class="cart-bottom-left">
+        <a href="{{ if gt .cart_count 0 }}/software_request/{{ .request_id }}{{ else }}#{{ end }}">
+            <img 
+                src="http://127.0.0.1:9000/lb1/cart.png" 
+                alt="Cart" 
+                class="cart-icon {{ if eq .cart_count 0 }}disabled{{ end }}">
+            <span class="cart-count {{ if eq .cart_count 0 }}empty{{ end }}">
+                {{ .cart_count }}
+            </span>
+        </a>
+    </div>
+
+</main>
+</body>
+</html>

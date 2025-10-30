@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Soft - Заявка №{{ .Count }}</title>
+    <link rel="stylesheet" href="/styles/styles_rub.css">
+</head>
+<body>
+<header>
+    <div class="logo" onclick="window.location.href='/software'" style="cursor: pointer;">IT Soft</div>
+</header>
+
+<main>
+    <h1>Заявка №{{ .Count }}</h1>
+    
+    <!-- Поле ввода телефона -->
+    <div class="phone-input-container">
+        {{ if eq .Status "draft" }}
+            <form method="POST" action="/software_request/update_phone">
+                <input type="hidden" name="request_id" value="{{ .Count }}">
+                <input type="text" name="phone" placeholder="Введите телефон" class="phone-input dark-placeholder"
+                    value="{{ .Phone }}">
+                <input type="submit" style="display:none;">
+            </form>
+        {{ else }}
+            <input type="text" class="phone-input dark-placeholder" value="{{ .Phone }}" disabled>
+        {{ end }}
+    </div>
+
+    <div class="requests-container">
+        <!-- Заголовки -->
+        <div class="card-headers">
+            <div class="card-header service-header">Услуга</div>
+            <div class="card-header os-header">ОС</div>
+            <div class="card-header version-header">Версия</div>
+            <div class="card-header size-header">Вес</div>
+            <div class="card-header time-header">Начало установки</div>
+            <div class="card-header finish-header">Конец установки</div>
+        </div>
+
+        <div class="cards-container">
+            {{ if .items }}
+                {{ range $currentItem := .items }}
+                <div class="request-card">
+                    <div class="card-content">
+
+                        <!-- Услуга -->
+                        <div class="card-field service-field">
+                            <div class="service-item">
+                                <img src="{{ $currentItem.ImgURL }}" alt="{{ $currentItem.Title }}" class="service-icon">
+                                <a href="/software/{{ $currentItem.SoftwareId }}" class="service-name" style="text-decoration: none; color: inherit;">
+                                    {{ $currentItem.Title }}
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- ОС -->
+                        <div class="card-field os-field">
+                            <div class="field-value">{{ $currentItem.OS }}</div>
+                        </div>
+
+                        <!-- Версия -->
+                        <div class="card-field version-field">
+                            <div class="field-value">{{ $currentItem.Version }}</div>
+                        </div>
+
+                        <!-- Вес -->
+                        <div class="card-field size-field">
+                            <div class="field-value">{{ $currentItem.Size }} ГБ</div>
+                        </div>
+
+                        <!-- Начало установки -->
+                        <div class="card-field time-field">
+                            <div class="field-value">
+                                {{ if eq $.Status "draft" }}
+                                    <form method="POST" action="/software_request/update_time" style="display:inline-block;">
+                                        <input type="hidden" name="software_id" value="{{ $currentItem.SoftwareId }}">
+                                        <input type="text" name="install_time" class="install-time-input"
+                                               value="{{ $currentItem.Install }}" placeholder="Введите время">
+                                        <input type="submit" style="display:none;">
+                                    </form>
+                                {{ else }}
+                                    {{ if $currentItem.Install }}
+                                        {{ $currentItem.Install }}
+                                    {{ else }}
+                                        -
+                                    {{ end }}
+                                {{ end }}
+                            </div>
+                        </div>
+
+                        <!-- Конец установки -->
+                        <div class="card-field finish-field">
+                            <div class="field-value">
+                                {{ if $currentItem.Final }}
+                                    {{ $currentItem.Final }}
+                                {{ else }}
+                                    <!-- Оставляем пустым вместо '-' -->
+                                {{ end }}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                {{ end }}
+            {{ else }}
+                <div class="request-card empty-card">
+                    <div class="empty-cart">Корзина пуста</div>
+                </div>
+            {{ end }}
+        </div>
+    </div>
+
+    <!-- Кнопка удаления заявки - перемещена вниз -->
+    {{ if eq .Status "draft" }}
+    <div class="delete-btn-container">
+        <form method="POST" action="/software_request/delete">
+            <input type="hidden" name="request_id" value="{{ .Count }}">
+            <button type="submit" class="delete-request-btn">Удалить заявку</button>
+        </form>
+    </div>
+    {{ end }}
+</main>
+</body>
+</html>
