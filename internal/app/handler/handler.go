@@ -1,130 +1,53 @@
 package handler
 
 import (
-	"net/http"
-	"strconv"
-
-	"lab1/internal/app/repository"
-
-	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
+    "github.com/gin-gonic/gin"
+    "github.com/minio/minio-go/v7"
+    "lab1/internal/app/config"
+    "lab1/internal/app/repository"
 )
 
 type Handler struct {
-	Repository *repository.Repository
+    Repository  *repository.Repository
+    MinioClient *minio.Client
+    MinioConfig *config.MinioConfig
 }
 
-func NewHandler(r *repository.Repository) *Handler {
-	return &Handler{Repository: r}
+func NewHandler(r *repository.Repository, minioClient *minio.Client, minioConfig *config.MinioConfig) *Handler {
+    return &Handler{
+        Repository:  r,
+        MinioClient: minioClient,
+        MinioConfig: minioConfig,
+    }
 }
 
-func (h *Handler) GetOrders(ctx *gin.Context) {
-	searchQuery := ctx.Query("apps")
+func (h *Handler) RegisterHandler(router *gin.Engine) {
+    router.GET("/api/software", h.GetSoftwareWithFilter)
+    router.GET("/api/software/:id", h.GetSoftwareByID)
+    router.POST("/api/software", h.AddSoftware)
+    router.POST("/api/software/:id/image", h.AddPicture)
+    router.PUT("/api/software/:id", h.ChangeSoftware)
+    router.DELETE("/api/software/:id", h.DeleteSoftware)
+	router.POST("/api/software/to_request/draft/:software_id", h.AddToDraftRequest)
 
-	var orders []repository.Order
-	var err error
-	if searchQuery == "" {
-		orders, err = h.Repository.GetOrders()
-		if err != nil {
-			logrus.Error(err)
-		}
-	} else {
-		orders, err = h.Repository.GetOrdersByTitle(searchQuery)
-		if err != nil {
-			logrus.Error(err)
-		}
-	}
 
-	if err != nil {
-		logrus.Error(err)
-	}
+    router.GET("/api/request/cart", h.GetUserCart)           
+    router.GET("/api/requests", h.GetRequestsList)          
+    router.GET("/api/request/:id", h.GetRequestByID)     
+    router.PUT("/api/requests/:id/fields", h.UpdateRequestFields)
+    router.PUT("/api/requests/:id/form", h.FormRequest)
+    router.DELETE("/api/requests/:id", h.DeleteRequest)
+    router.PUT("/api/requests/:id/status/:status", h.UpdateRequestStatusByModerator)
 
-	cartCount := h.Repository.GetCartCount()
-	cartID := h.Repository.GetCartID()
 
-	ctx.HTML(http.StatusOK, "index_main.html", gin.H{
-		"orders":    orders,
-		"apps":      searchQuery,
-		"CartCount": cartCount,
-		"CartID":    cartID,
-	})
-}
 
-func (h *Handler) GetOrderByID(ctx *gin.Context) {
-	idStr := ctx.Param("id")
-	if idStr == "" {
-		logrus.Error("ID приложения не указан")
-		ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
-			"error": "ID приложения не указан",
-		})
-		return
-	}
+    router.DELETE("/api/InstallationTime/:requests_id/software/:software_id", h.DeleteInstallationTime)
+    router.PUT("/api/InstallationTime/:request_id/software/:software_id/install_time", h.UpdateInstallationTime)
 
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		logrus.Error("Некорректный ID приложения: ", idStr)
-		ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
-			"error": "Некорректный ID приложения",
-		})
-		return
-	}
 
-	order, err := h.Repository.GetOrder(id)
-	if err != nil {
-		logrus.Error("Приложение не найдено: ", id)
-		ctx.HTML(http.StatusNotFound, "error.html", gin.H{
-			"error": "Приложение не найдено",
-		})
-		return
-	}
-
-	cartID := h.Repository.GetCartID()
-
-	ctx.HTML(http.StatusOK, "index_prod.html", gin.H{
-		"order":     order,
-		"CartCount": h.Repository.GetCartCount(),
-		"CartID":    cartID,
-	})
-}
-
-func (h *Handler) GetCartItems(ctx *gin.Context) {
-	countParam := ctx.Param("count")
-	idParam := ctx.Param("id")
-
-	cartOrders, err := h.Repository.GetCartOrders()
-	if err != nil {
-		logrus.Error(err)
-		ctx.HTML(http.StatusInternalServerError, "error.html", gin.H{
-			"error": "Ошибка получения корзины",
-		})
-		return
-	}
-
-	type CartItem struct {
-		repository.Order
-		InstallTime string
-		FinishTime  string
-	}
-
-	var resultItems []CartItem
-	for _, order := range cartOrders {
-		chosenTime := h.Repository.GetCartInstallTime(order.ID)
-		end := ""
-		if chosenTime != "" {
-			end = repository.CalculateEndTime(chosenTime, order.Size)
-		}
-		resultItems = append(resultItems, CartItem{
-			Order:       order,
-			InstallTime: chosenTime,
-			FinishTime:  end,
-		})
-	}
-
-	ctx.HTML(http.StatusOK, "index_rub.html", gin.H{
-		"cartItems": resultItems,
-		"CartCount": h.Repository.GetCartCount(),
-		"Phone":     h.Repository.GetCartPhone(),
-		"Count":     countParam,
-		"CartID":    idParam,
-	})
+    router.POST("/api/user/add", h.RegisterUser)
+    router.GET("/api/user", h.GetUserProfile)      // получить данные пользователя
+    router.PUT("/api/user", h.UpdateUserProfile)   // обновить данные пользователя
+    router.POST("/api/user/login", h.Login)        // аутентификация
+    router.POST("/api/user/logout", h.Logout)      // деавторизация
 }
