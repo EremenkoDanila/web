@@ -1,8 +1,8 @@
 
 -- Вставка данных в таблицу users
-INSERT INTO users (login, password, moderator_flg) VALUES
-('admin', 'admin123', true),    -- Администратор (модератор)
-('client', 'client123', false); -- Обычный клиент
+INSERT INTO users (user_id, uuid, login, password, role, moderator_flg) VALUES
+(1, gen_random_uuid(), 'admin', 'admin123', 2, true),    -- Администратор (Admin)
+(2, gen_random_uuid(), 'client', 'client123', 0, false); -- Обычный клиент (Buyer)
 
 
 -- Вставка данных в таблицу software (из orders)

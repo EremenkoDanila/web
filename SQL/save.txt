@@ -436,3 +436,9 @@ GET список (кроме удаленных и черновика, поля 
 GET одна запись (поля заявки + ее услуги). При получении заявки возвращется список ее услуг с картинками
 
 Учти что пользователь зафиксирова в singleton 
+
+keys *
+docker exec -it lb1-redis-1 redis-cli -a password
+
+
+swag init -g cmd/awesomeProject/main.go

@@ -5,49 +5,76 @@ import (
     "github.com/minio/minio-go/v7"
     "lab1/internal/app/config"
     "lab1/internal/app/repository"
+	"lab1/internal/app/middlewares"
+	"lab1/internal/app/role"
+    "lab1/internal/app/redis"
 )
 
 type Handler struct {
     Repository  *repository.Repository
     MinioClient *minio.Client
     MinioConfig *config.MinioConfig
+    Config      *config.Config
+    Redis       *redis.Client
 }
 
-func NewHandler(r *repository.Repository, minioClient *minio.Client, minioConfig *config.MinioConfig) *Handler {
-    return &Handler{
-        Repository:  r,
-        MinioClient: minioClient,
-        MinioConfig: minioConfig,
-    }
+func NewHandler(r *repository.Repository, minioClient *minio.Client, minioConfig *config.MinioConfig, cfg *config.Config,  redisClient *redis.Client) *Handler {
+	return &Handler{
+		Repository:  r,
+		MinioClient: minioClient,
+		MinioConfig: minioConfig,
+		Config:      cfg,
+        Redis:       redisClient,
+	}
 }
+
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
-    router.GET("/api/software", h.GetSoftwareWithFilter)
-    router.GET("/api/software/:id", h.GetSoftwareByID)
-    router.POST("/api/software", h.AddSoftware)
-    router.POST("/api/software/:id/image", h.AddPicture)
-    router.PUT("/api/software/:id", h.ChangeSoftware)
-    router.DELETE("/api/software/:id", h.DeleteSoftware)
-	router.POST("/api/software/to_request/draft/:software_id", h.AddToDraftRequest)
+    // --- Гость (не авторизован) ---
+    guest := router.Group("/api")
+    {
+        guest.POST("/user/login", h.Login)
+        guest.POST("/user/add", h.RegisterUser)
+        guest.GET("/software", h.GetSoftwareWithFilter)
+        guest.GET("/software/:id", h.GetSoftwareByID)
+    }
+
+    // --- Creater (вошедший пользователь) ---
+    creater := router.Group("/api")
+    creater.Use(middlewares.WithAuthCheck(h.Config.JWT.Token, h.Redis, role.Creater, role.Moderator))
+    {
+        creater.GET("/user", h.GetUserProfile) // как? 
+        creater.PUT("/user", h.UpdateUserProfile) //+
+
+        creater.GET("/request/cart", h.GetUserCart) //+
+        creater.GET("/requests", h.GetRequestsList) //+
+        creater.GET("/request/:id", h.GetRequestByID) // ??
 
 
-    router.GET("/api/request/cart", h.GetUserCart)           
-    router.GET("/api/requests", h.GetRequestsList)          
-    router.GET("/api/request/:id", h.GetRequestByID)     
-    router.PUT("/api/requests/:id/fields", h.UpdateRequestFields)
-    router.PUT("/api/requests/:id/form", h.FormRequest)
-    router.DELETE("/api/requests/:id", h.DeleteRequest)
-    router.PUT("/api/requests/:id/status/:status", h.UpdateRequestStatusByModerator)
+        creater.PUT("/requests/:id/fields", h.UpdateRequestFields)  // ?
+        creater.PUT("/requests/form", h.FormRequest)  //?
+        creater.DELETE("/requests/:id", h.DeleteRequest)  //?
 
 
+        creater.DELETE("/InstallationTime/:requests_id/software/:software_id", h.DeleteInstallationTime)  // ?
+        creater.PUT("/InstallationTime/:request_id/software/:software_id/install_time", h.UpdateInstallationTime) // ?
+        
+    
+        creater.POST("/user/logout", h.Logout)
+        creater.POST("/software/to_request/draft/:software_id", h.AddToDraftRequest) 
+    }
 
-    router.DELETE("/api/InstallationTime/:requests_id/software/:software_id", h.DeleteInstallationTime)
-    router.PUT("/api/InstallationTime/:request_id/software/:software_id/install_time", h.UpdateInstallationTime)
+    // --- Moderator ---
+    moderator := router.Group("/api")
+    moderator.Use(middlewares.WithAuthCheck(h.Config.JWT.Token, h.Redis, role.Moderator))
+    {
+        moderator.POST("/software", h.AddSoftware)
+        moderator.POST("/software/:id/image", h.AddPicture)
+        moderator.PUT("/software/:id", h.ChangeSoftware)
+        moderator.DELETE("/software/:id", h.DeleteSoftware)
+        moderator.PUT("/requests/:id/status/:status", h.UpdateRequestStatusByModerator)
 
 
-    router.POST("/api/user/add", h.RegisterUser)
-    router.GET("/api/user", h.GetUserProfile)      // получить данные пользователя
-    router.PUT("/api/user", h.UpdateUserProfile)   // обновить данные пользователя
-    router.POST("/api/user/login", h.Login)        // аутентификация
-    router.POST("/api/user/logout", h.Logout)      // деавторизация
+        
+    }
 }

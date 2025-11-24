@@ -7,6 +7,8 @@ import (
     "fmt"
     "math/rand"
     "database/sql"
+    "github.com/google/uuid"
+    
 )
 
 // GetSoftwaresWithFilter возвращает список программ (без удалённых)
@@ -231,34 +233,57 @@ return r.DB.Model(&ds.SoftwareRequest{}).Where("request_id = ?", reqID).Updates(
 }
 
 // Формирование заявки создателем
-func (r *Repository) FormRequest(reqID uint) error {
-var req ds.SoftwareRequest
-if err := r.DB.First(&req, "request_id = ?", reqID).Error; err != nil {
-return err
-}
+// func (r *Repository) FormRequest(reqID uint) error {
+// var req ds.SoftwareRequest
+// if err := r.DB.First(&req, "request_id = ?", reqID).Error; err != nil {
+// return err
+// }
 
-// Проверка обязательного телефона
-if !req.Phone.Valid || req.Phone.String == "" {
-    return fmt.Errorf("phone is required")
-}
+// // Проверка обязательного телефона
+// if !req.Phone.Valid || req.Phone.String == "" {
+//     return fmt.Errorf("phone is required")
+// }
 
-// Проверка обязательного InstallTime у всех приложений
-var installs []ds.InstallationTime
-if err := r.DB.Where("request_id = ?", reqID).Find(&installs).Error; err != nil {
-    return err
-}
+// // Проверка обязательного InstallTime у всех приложений
+// var installs []ds.InstallationTime
+// if err := r.DB.Where("request_id = ?", reqID).Find(&installs).Error; err != nil {
+//     return err
+// }
 
-for _, inst := range installs {
-    if inst.InstallTime == nil {
-        return fmt.Errorf("all software must have InstallTime")
+// for _, inst := range installs {
+//     if inst.InstallTime == nil {
+//         return fmt.Errorf("all software must have InstallTime")
+//     }
+// }
+
+// // Обновляем статус и дату обновления
+// req.Status = "formed"
+// req.UpdateDt = time.Now()
+// return r.DB.Updates(&req).Error
+
+// }
+func (r *Repository) FormRequestByDraft(req *ds.SoftwareRequest) error {
+    // Проверка обязательного телефона
+    if !req.Phone.Valid || req.Phone.String == "" {
+        return fmt.Errorf("phone is required")
     }
-}
 
-// Обновляем статус и дату обновления
-req.Status = "formed"
-req.UpdateDt = time.Now()
-return r.DB.Updates(&req).Error
+    // Проверка обязательного InstallTime у всех приложений
+    var installs []ds.InstallationTime
+    if err := r.DB.Where("request_id = ?", req.RequestID).Find(&installs).Error; err != nil {
+        return err
+    }
 
+    for _, inst := range installs {
+        if inst.InstallTime == nil {
+            return fmt.Errorf("all software must have InstallTime")
+        }
+    }
+
+    // Обновляем статус и дату обновления
+    req.Status = "formed"
+    req.UpdateDt = time.Now()
+    return r.DB.Updates(req).Error
 }
 
 
@@ -348,6 +373,19 @@ func (r *Repository) DeleteInstallationTime(requestID uint, softwareID uint) err
 }
 
 
+func (r *Repository) IsRequestOwnedByUser(requestID uint, userID uint) (bool, error) {
+    var req ds.SoftwareRequest
+    err := r.DB.Select("creator_id").
+        Where("request_id = ?", requestID).
+        First(&req).Error
+
+    if err != nil {
+        return false, err
+    }
+    return req.CreatorID == userID, nil
+}
+
+
 func (r *Repository) UpdateInstallationTime(requestID uint, softwareID uint, installTime time.Time) error {
     result := r.DB.Model(&ds.InstallationTime{}).
     Where("request_id = ? AND software_id = ?", requestID, softwareID).
@@ -390,16 +428,41 @@ func (r *Repository) CreateUser(user *ds.Users) error {
 
 
 // Получить пользователя по ID
-func (r *Repository) GetUserByID(userID uint) (*ds.Users, error) {
+// func (r *Repository) GetUserByID(userID uint) (*ds.Users, error) {
+//     var user ds.Users
+//     if err := r.DB.First(&user, userID).Error; err != nil {
+//         return nil, err
+//     }
+//     return &user, nil
+// }
+
+func (r *Repository) GetUserByUUID(uuid string) (*ds.Users, error) {
     var user ds.Users
-    if err := r.DB.First(&user, userID).Error; err != nil {
+    if err := r.DB.Where("uuid = ?", uuid).First(&user).Error; err != nil {
         return nil, err
     }
     return &user, nil
 }
 
+
 // Обновить данные пользователя
-func (r *Repository) UpdateUser(userID uint, login string, password string) error {
+// func (r *Repository) UpdateUser(userID uint, login string, password string) error {
+//     updates := map[string]interface{}{}
+//     if login != "" {
+//         updates["login"] = login
+//     }
+//     if password != "" {
+//         updates["password"] = password
+//     }
+
+//     if len(updates) == 0 {
+//         return nil
+//     }
+
+//     return r.DB.Model(&ds.Users{}).Where("user_id = ?", userID).Updates(updates).Error
+// }
+
+func (r *Repository) UpdateUserByUUID(uuid string, login string, password string) error {
     updates := map[string]interface{}{}
     if login != "" {
         updates["login"] = login
@@ -412,8 +475,11 @@ func (r *Repository) UpdateUser(userID uint, login string, password string) erro
         return nil
     }
 
-    return r.DB.Model(&ds.Users{}).Where("user_id = ?", userID).Updates(updates).Error
+    return r.DB.Model(&ds.Users{}).
+        Where("uuid = ?", uuid).
+        Updates(updates).Error
 }
+
 
 // Аутентификация
 func (r *Repository) Authenticate(login, password string) (*ds.Users, error) {
@@ -422,4 +488,79 @@ func (r *Repository) Authenticate(login, password string) (*ds.Users, error) {
         return nil, err
     }
     return &user, nil
+}
+
+
+
+
+
+
+func (r *Repository) GetUserByLogin(login string) (*ds.Users, error) {
+	user := &ds.Users{}
+	err := r.DB.Where("login = ?", login).First(user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (r *Repository) Register(user *ds.Users) error {
+	if user.UUID == uuid.Nil {
+		user.UUID = uuid.New()
+	}
+	return r.DB.Create(user).Error
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+func (r *Repository) GetRequestsFilteredByUser(userUUID string, status string, startDate, endDate *time.Time) ([]ds.SoftwareRequest, error) {
+    var user ds.Users
+    // Сначала получаем ID пользователя по UUID
+    if err := r.DB.Where("uuid = ?", userUUID).First(&user).Error; err != nil {
+        return nil, err
+    }
+
+    query := r.DB.Preload("Creator").Preload("Moderator").
+        Model(&ds.SoftwareRequest{}).
+        Where("status != ?", "draft").
+        Where("creator_id = ?", user.UserID) // фильтр по пользователю
+
+    if status != "" {
+        query = query.Where("status = ?", status)
+    }
+    if startDate != nil {
+        query = query.Where("create_dt >= ?", *startDate)
+    }
+    if endDate != nil {
+        query = query.Where("create_dt <= ?", *endDate)
+    }
+
+    var requests []ds.SoftwareRequest
+    if err := query.Find(&requests).Error; err != nil {
+        return nil, err
+    }
+
+    return requests, nil
 }

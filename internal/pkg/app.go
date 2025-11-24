@@ -16,6 +16,7 @@ type Application struct {
 }
 
 func NewApp(c *config.Config, r *gin.Engine, h *handler.Handler) *Application {
+   
    return &Application{
       Config:  c,
       Router:  r,
