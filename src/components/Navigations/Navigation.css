@@ -1,0 +1,75 @@
+.top-navbar {
+    background-color: #fff;
+    padding: 22px 40px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* убираем центрирование */
+.no-container-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-logo {
+    font-size: 32px !important;
+    font-weight: bold !important;
+    color: green !important;
+    text-decoration: none !important;
+}
+
+/* Стили для ссылки "Услуги" - увеличенный размер и убрано изменение цвета при наведении */
+.services-link {
+    font-size: 22px !important; /* Увеличиваем размер шрифта */
+    font-weight: 500 !important;
+    color: #4CAF50 !important; /* Зеленый цвет */
+    padding: 10px 20px !important; /* Увеличиваем отступы */
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    text-decoration: none !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* Убираем изменение цвета при наведении, оставляем только легкий сдвиг */
+.services-link:hover {
+    background-color: transparent !important; /* Прозрачный фон при наведении */
+    color: #4CAF50 !important; /* Оставляем тот же цвет */
+    transform: translateY(-2px); /* Легкий подъем при наведении */
+}
+
+/* Убираем все состояния фокуса и активного клика */
+.services-link:focus,
+.services-link:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background-color: transparent !important;
+    color: #4CAF50 !important; /* Тот же цвет при фокусе */
+}
+
+/* Убираем стандартные стили Bootstrap для активной ссылки */
+.nav-link:focus, 
+.nav-link:hover {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .top-navbar {
+        padding: 15px 20px !important;
+    }
+    
+    .navbar-logo {
+        font-size: 28px !important;
+    }
+    
+    .services-link {
+        font-size: 20px !important; /* Немного меньше на мобильных */
+        padding: 8px 16px !important;
+    }
+}

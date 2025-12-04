@@ -1,9 +1,0 @@
-ServiceHost = "0.0.0.0"
-ServicePort = 8080
-
-[MinioConfig]
-Endpoint = "localhost:9000"
-AccessKeyID = "minio"
-SecretAccessKey = "minio124"
-UseSSL = false
-BucketName = "lb1"

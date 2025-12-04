@@ -1,0 +1,47 @@
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  padding: 10px 40px; /* Такие же отступы как у навбара */
+  margin: 0;
+  list-style: none;
+  font-size: 14px;
+  position: sticky;
+  top: 86px; /* Высота навбара + его padding */
+  z-index: 999;
+  width: 100%;
+  background-color: transparent; /* Прозрачный фон */
+}
+
+.breadcrumbs li {
+  display: inline-block;
+}
+
+.breadcrumbs .slash {
+  color: #6c757d;
+  margin: 0 8px;
+}
+
+.breadcrumbs a {
+  color: #4CAF50;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.breadcrumbs a:hover {
+  color: #45a049;
+  text-decoration: underline;
+}
+
+.breadcrumbs li:last-child {
+  color: #495057;
+  font-weight: 500;
+}
+
+/* Для мобильных устройств */
+@media (max-width: 768px) {
+  .breadcrumbs {
+    font-size: 13px;
+    padding: 8px 20px;
+    top: 76px; /* Меньшая высота на мобильных */
+  }
+}

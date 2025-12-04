@@ -1,0 +1,35 @@
+.page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 15px 100px 15px;
+}
+
+.main-title {
+    text-align: center;
+    margin: 40px 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.cards-grid {
+    padding: 0 10px;
+}
+
+.loadingBg {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.empty-msg {
+    text-align: center;
+    margin-top: 40px;
+    color: #777;
+}
+
+.software-title-center {
+    text-align: center;
+    margin: 20px 0 30px 0;
+    font-size: 26px;
+    font-weight: 600;
+}

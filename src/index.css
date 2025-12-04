@@ -1,0 +1,25 @@
+/* Сброс */
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body, #root { height:100%; width:100%; }
+
+/* body */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #FFFFFF;
+    color: #333;
+    min-height: 100vh;
+}
+
+/* Ссылки */
+a { text-decoration: none; color: inherit; }
+
+/* Контейнер */
+.container { padding-top: 10px; }
+
+/* Заголовки */
+h1, h2, h3 { font-family: Arial, sans-serif; }
+
+/* Убираем скролл на главной странице */
+body.no-scroll {
+    overflow: hidden;
+}
